@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../middleware/upload');
 const { registerUser } = require('../controllers/authController');
-const validateRegister = require('../middleware/validateRegister');
 
-router.post('/register', validateRegister, registerUser);
+router.post('/register', upload.single('profileImage'), registerUser);
 
 module.exports = router;
