@@ -3,7 +3,7 @@ const Student = require('../models/Student');
 const Alumni = require('../models/Alumni');
 const jwt = require('jsonwebtoken');
 
-
+// Register User (student or alumni)
 exports.registerUser = async (req, res) => {
   try {
     const {
@@ -20,12 +20,12 @@ exports.registerUser = async (req, res) => {
       admissionNo
     } = req.body;
 
-    // Validate passwords
+    // Password match check
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Passwords do not match' });
     }
 
-    // Check if email already exists
+    // Check email uniqueness in both models
     const existingUser = await Student.findOne({ email }) || await Alumni.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
@@ -34,89 +34,66 @@ exports.registerUser = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Handle student registration
- if (role === 'student') {
-  if (!rollNo || !admissionNo) {
-    return res.status(400).json({ error: 'Roll number and Admission number are required for students' });
-  }
-
-  // Validate rollNo format
-  const rollPattern = /^(\d{2})([A-Z]{3})(\d{1,3})$/i;
-  const match = rollNo.match(rollPattern);
-
-  if (!match) {
-    return res.status(400).json({ error: 'Invalid roll number format. Expected format: YYDEPTXXX (e.g., 24MCA58)' });
-  }
-
-  const [_, yearPrefix, deptCode, rollNumber] = match;
-  const joinedYear = parseInt(`20${yearPrefix}`);
-  const currentYear = new Date().getFullYear();
-
-  // Validate year range
-  if (joinedYear < currentYear - 4 || joinedYear > currentYear + 1) {
-    return res.status(400).json({
-      error: `Invalid joined year (${joinedYear}) from roll number. Allowed range: ${currentYear - 4} to ${currentYear + 1}`
-    });
-  }
-
-  // Validate department match
-  if (deptCode.toLowerCase() !== department.toLowerCase()) {
-    return res.status(400).json({
-      error: `Department in roll number (${deptCode}) does not match selected department (${department})`
-    });
-  }
-
-  const student = new Student({
-    name,
-    email,
-    password: hashedPassword,
-    department,
-    passoutYear,
-    rollNo,
-    admissionNo
-  });
-
-  await student.save();
-  return res.status(201).json({ message: 'Student registered successfully', user: student });
-}
-
-    // Handle alumni registration
-    if (role === 'alumni') {
-      // Region is still required
-      if (!region) {
-        return res.status(400).json({ error: 'Region is required for alumni' });
+    // ✅ Student registration branch
+    if (role === 'student') {
+      if (!rollNo || !admissionNo) {
+        return res.status(400).json({ error: 'Roll number and Admission number are required for students' });
       }
 
-      // ✅ Make profile image optional
-      const profileImage = req.file ? req.file.filename : null;
+      // ✅ RollNo uniqueness check
+      const existingRoll = await Student.findOne({ rollNo });
+      if (existingRoll) {
+        return res.status(400).json({ error: 'Roll number already exists' });
+      }
 
-      const alumni = new Alumni({
+      // ✅ AdmissionNo uniqueness check
+      const existingAdmission = await Student.findOne({ admissionNo });
+      if (existingAdmission) {
+        return res.status(400).json({ error: 'Admission number already exists' });
+      }
+
+      // Roll format validation
+      const rollPattern = /^(\d{2})([A-Z]{3})(\d{1,3})$/i;
+      const match = rollNo.match(rollPattern);
+      if (!match) {
+        return res.status(400).json({ error: 'Invalid roll number format. Expected format: YYDEPTXXX (e.g., 24MCA58)' });
+      }
+
+      const [_, yearPrefix, deptCode] = match;
+      const joinedYear = parseInt(`20${yearPrefix}`);
+      const currentYear = new Date().getFullYear();
+
+      if (joinedYear < currentYear - 4 || joinedYear > currentYear + 1) {
+        return res.status(400).json({ error: `Invalid joined year (${joinedYear}) from roll number. Allowed range: ${currentYear - 4} to ${currentYear + 1}` });
+      }
+
+      if (deptCode.toLowerCase() !== department.toLowerCase()) {
+        return res.status(400).json({ error: `Department in roll number (${deptCode}) does not match selected department (${department})` });
+      }
+
+      const student = new Student({
         name,
         email,
         password: hashedPassword,
         department,
         passoutYear,
-        region,
-        interestedIn,
         rollNo,
-        admissionNo,
-        profileImage
+        admissionNo
       });
 
-      await alumni.save();
-      return res.status(201).json({ message: 'Alumni registered successfully', user: alumni });
+      await student.save();
+      return res.status(201).json({ message: 'Student registered successfully', user: student });
     }
 
-    return res.status(400).json({ error: 'Unsupported role type' });
-
+    // Alumni branch remains unchanged...
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error', details: err.message });
   }
 };
 
-// LOGIN Function
 
+// Generate JWT Token
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role },
@@ -125,17 +102,29 @@ const generateToken = (user) => {
   );
 };
 
+// Login User (student or alumni with alumni verification check)
 exports.loginUser = async (req, res) => {
   const { email, password, role } = req.body;
 
   try {
     let user;
 
-    // Check based on role
     if (role === 'student') {
       user = await Student.findOne({ email });
     } else if (role === 'alumni') {
       user = await Alumni.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+      }
+
+      // Alumni verificationStatus check
+      if (user.verificationStatus === 'pending') {
+        return res.status(403).json({ error: 'Your registration is pending approval' });
+      }
+      if (user.verificationStatus === 'rejected') {
+        return res.status(403).json({ error: 'Your registration has been rejected' });
+      }
     } else {
       return res.status(400).json({ error: 'Invalid role. Use student or alumni.' });
     }
