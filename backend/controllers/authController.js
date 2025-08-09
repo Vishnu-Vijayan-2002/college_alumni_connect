@@ -126,23 +126,30 @@ const generateToken = (user) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   try {
-    // Check both models for email
-    const user = await Student.findOne({ email }) || await Alumni.findOne({ email });
+    let user;
+
+    // Check based on role
+    if (role === 'student') {
+      user = await Student.findOne({ email });
+    } else if (role === 'alumni') {
+      user = await Alumni.findOne({ email });
+    } else {
+      return res.status(400).json({ error: 'Invalid role. Use student or alumni.' });
+    }
 
     if (!user) {
       return res.status(400).json({ error: 'User not found' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid password' });
     }
 
-    const token = generateToken(user); // <- Use that function here
+    const token = generateToken(user);
 
     res.status(200).json({
       message: 'Login successful',
