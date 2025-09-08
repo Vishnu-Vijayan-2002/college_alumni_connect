@@ -6,6 +6,11 @@ const jwt = require('jsonwebtoken');
 // Register User (student or alumni)
 exports.registerUser = async (req, res) => {
   try {
+    // Ensure body is present
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: 'Request body is missing' });
+    }
+
     const {
       name,
       email,
@@ -20,39 +25,39 @@ exports.registerUser = async (req, res) => {
       admissionNo
     } = req.body;
 
-    // Password match check
+    // ✅ Password check
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Passwords do not match' });
     }
 
-    // Check email uniqueness in both models
+    // ✅ Email uniqueness across Student + Alumni
     const existingUser = await Student.findOne({ email }) || await Alumni.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    // Hash password
+    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Student registration branch
+    // ============================
+    // Student branch
+    // ============================
     if (role === 'student') {
       if (!rollNo || !admissionNo) {
         return res.status(400).json({ error: 'Roll number and Admission number are required for students' });
       }
 
-      // ✅ RollNo uniqueness check
-      const existingRoll = await Student.findOne({ rollNo });
-      if (existingRoll) {
+      // RollNo uniqueness
+      if (await Student.findOne({ rollNo })) {
         return res.status(400).json({ error: 'Roll number already exists' });
       }
 
-      // ✅ AdmissionNo uniqueness check
-      const existingAdmission = await Student.findOne({ admissionNo });
-      if (existingAdmission) {
+      // AdmissionNo uniqueness
+      if (await Student.findOne({ admissionNo })) {
         return res.status(400).json({ error: 'Admission number already exists' });
       }
 
-      // Roll format validation
+      // ✅ Roll format validation: YYDEPTXXX (e.g. 24MCA58)
       const rollPattern = /^(\d{2})([A-Z]{3})(\d{1,3})$/i;
       const match = rollNo.match(rollPattern);
       if (!match) {
@@ -64,11 +69,15 @@ exports.registerUser = async (req, res) => {
       const currentYear = new Date().getFullYear();
 
       if (joinedYear < currentYear - 4 || joinedYear > currentYear + 1) {
-        return res.status(400).json({ error: `Invalid joined year (${joinedYear}) from roll number. Allowed range: ${currentYear - 4} to ${currentYear + 1}` });
+        return res.status(400).json({
+          error: `Invalid joined year (${joinedYear}) from roll number. Allowed range: ${currentYear - 4} to ${currentYear + 1}`
+        });
       }
 
       if (deptCode.toLowerCase() !== department.toLowerCase()) {
-        return res.status(400).json({ error: `Department in roll number (${deptCode}) does not match selected department (${department})` });
+        return res.status(400).json({
+          error: `Department in roll number (${deptCode}) does not match selected department (${department})`
+        });
       }
 
       const student = new Student({
@@ -78,16 +87,43 @@ exports.registerUser = async (req, res) => {
         department,
         passoutYear,
         rollNo,
-        admissionNo
+        admissionNo,
+        interestedIn,
+        region
       });
 
       await student.save();
       return res.status(201).json({ message: 'Student registered successfully', user: student });
     }
 
-    // Alumni branch remains unchanged...
+    // ============================
+    // Alumni branch
+    // ============================
+    if (role === 'alumni') {
+      if (!passoutYear || !department) {
+        return res.status(400).json({ error: 'Department and Passout Year are required for alumni' });
+      }
+
+       const alumni = new Alumni({
+    name,
+    email,
+    password: hashedPassword,
+    department,
+    passoutYear,
+    region,
+    interestedIn,
+    company: req.body.company || null,
+    position: req.body.position || null,
+    experience: req.body.experience || 0
+  });
+      await alumni.save();
+      return res.status(201).json({ message: 'Alumni registered successfully', user: alumni });
+    }
+
+    return res.status(400).json({ error: 'Invalid role. Must be student or alumni' });
+
   } catch (err) {
-    console.error(err);
+    console.error('Registration error:', err);
     res.status(500).json({ error: 'Server error', details: err.message });
   }
 };

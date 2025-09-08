@@ -12,6 +12,7 @@ router.post('/login', loginUser);
 router.post('/login', adminLogin);
 // placement cell
 router.post('/login', loginPlacementCell);
+
 // for testing 
 // router.get('/admin', protect, authorizeRoles('admin'), (req, res) => {
 //   res.json({ message: 'Welcome Admin!' });
