@@ -17,6 +17,7 @@ router.post("/new-request", createRequest);
 router.get("/get-request", getAllRequests);
 
 // PATCH /api/requests/:id → approve/reject a request
-router.patch("/requests/:id", updateRequestStatus);
+// http://localhost:5000/api/requests/request_id
+router.patch("/:id", updateRequestStatus);
 
 module.exports = router;
