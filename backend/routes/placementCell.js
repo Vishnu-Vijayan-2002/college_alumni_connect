@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { registerPlacementCell, loginPlacementCell } = require('../controllers/placementCellController');
 const { createRequest, getAllRequests, updateRequestStatus } =require ("../controllers/requestController");
+const {createPlacementRequest} = require("../controllers/placementRequestController");
+const { protect, authorize } = require("../middleware/authMiddleware");
 
 // POST /api/placement-cell/register
 router.post('/register', registerPlacementCell);
@@ -20,4 +22,7 @@ router.get("/get-request", getAllRequests);
 // http://localhost:5000/api/requests/request_id
 router.patch("/:id", updateRequestStatus);
 
+// POST /api/placement-cell/placement-request → create new placement form
+router.post("/placement-request", protect, authorize(["placement-cell"]), createPlacementRequest);
 module.exports = router;
+

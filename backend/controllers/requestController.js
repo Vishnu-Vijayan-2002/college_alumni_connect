@@ -46,7 +46,7 @@ const createRequest = async (req, res) => {
     await newRequest.save();
 
     // ✅ Send email notification to admin/placement cell
-    const emailRecipient = "vishnuvijayan7909@gmail.com"; // replace with your target email
+    const emailRecipient = "akashp4010@gmail.com"; // replace with your target email
     await sendEmail(
       emailRecipient,
       `New ${type} request submitted`,
