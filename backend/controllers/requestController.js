@@ -2,6 +2,7 @@
 const RequestModel = require("../models/alumniRequest");
 const Alumni = require("../models/Alumni");
 const sendEmail = require("../utils/sendEmail");
+const sendEmail2 = require("../utils/mailer");
 // ✅ Alumni submits a new request
 const createRequest = async (req, res) => {
   try {
@@ -83,22 +84,58 @@ const getAllRequests = async (req, res) => {
 };
 
 // ✅ Approve/Reject a request
+
+// Update request status (placement-cell only)
 const updateRequestStatus = async (req, res) => {
   try {
-    const { status } = req.body; // "approved" | "rejected"
+    const { status } = req.body; // "approved" | "rejected" | "pending"
+
+    // Validate status values
+    if (!["approved", "rejected", "pending"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    // Update request status
     const updated = await RequestModel.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
     );
 
-    if (!updated) return res.status(404).json({ message: "Request not found" });
+    if (!updated) {
+      return res.status(404).json({ message: "Request not found" });
+    }
 
-    res.json({ message: "Request updated", request: updated });
+    // ✅ Find the alumni who created this request
+    const alumni = await Alumni.findById(updated.alumniId);
+
+    if (alumni && alumni.email) {
+      const subject = "Your Request Status has been Updated";
+      const text = `Hello ${alumni.name},
+
+Your request titled "${updated.title}" has been reviewed by the Placement Cell.
+
+📌 Status: ${status.toUpperCase()}
+
+Thank you,
+Placement Cell Team`;
+
+      // Fire email
+      await sendEmail(alumni.email, subject, text);
+    }
+
+    res.json({
+      message: `Request status updated to ${status}`,
+      request: updated,
+    });
   } catch (error) {
+    console.error("Error updating request:", error);
     res.status(500).json({ message: "Error updating request", error });
   }
 };
+
+
+
 
 module.exports = {
   createRequest,
