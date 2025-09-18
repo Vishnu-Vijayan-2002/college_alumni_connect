@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
-import { Menu, X, Users, GraduationCap, Briefcase, Calendar, MessageCircle, BookOpen, Award, Settings } from 'lucide-react';
+import React, { useState } from "react";
+import { Link } from "react-router-dom"; // ✅ import Link
+import {
+  Menu,
+  X,
+  Users,
+  GraduationCap,
+  Briefcase,
+  Calendar,
+  MessageCircle,
+  BookOpen,
+  Award,
+  Settings,
+} from "lucide-react";
 
-const Header: React.FC = () => {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Home', href: '#home', icon: Users },
-    { name: 'Alumni', href: '#alumni', icon: GraduationCap },
-    { name: 'Students', href: '#students', icon: Briefcase },
-    { name: 'Events', href: '#events', icon: Calendar },
-    { name: 'Forums', href: '#forums', icon: MessageCircle },
-    { name: 'Resources', href: '#resources', icon: BookOpen },
+    { name: "Home", path: "/", icon: Users },
+    { name: "Alumni", path: "/alumni", icon: GraduationCap },
+    { name: "Students", path: "/students", icon: Briefcase },
+    { name: "Events", path: "/events", icon: Calendar },
+    { name: "Forums", path: "/forums", icon: MessageCircle },
+    { name: "Resources", path: "/resources", icon: BookOpen },
   ];
 
   return (
@@ -23,7 +35,9 @@ const Header: React.FC = () => {
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Alumni Connect</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                Alumni Connect
+              </h1>
               <p className="text-xs text-gray-500">College Portal</p>
             </div>
           </div>
@@ -31,33 +45,37 @@ const Header: React.FC = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.path}
                 className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors duration-200 px-3 py-2 rounded-md hover:bg-blue-50"
               >
                 <item.icon className="h-4 w-4" />
                 <span className="font-medium">{item.name}</span>
-              </a>
+              </Link>
             ))}
           </nav>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <button className="p-2 text-gray-700 hover:text-blue-600 rounded-md transition-colors duration-200">
-                <Award className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-gray-700 hover:text-blue-600 rounded-md transition-colors duration-200">
-                <Settings className="h-5 w-5" />
-              </button>
-            </div>
-            <button className="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-md transition-colors duration-200">
+            <button className="p-2 text-gray-700 hover:text-blue-600 rounded-md transition-colors duration-200">
+              <Award className="h-5 w-5" />
+            </button>
+            <button className="p-2 text-gray-700 hover:text-blue-600 rounded-md transition-colors duration-200">
+              <Settings className="h-5 w-5" />
+            </button>
+            <Link
+              to="/login"
+              className="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-md transition-colors duration-200"
+            >
               Login
-            </button>
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
+            </Link>
+            <Link
+              to="/register"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
               Register
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -74,22 +92,28 @@ const Header: React.FC = () => {
           <div className="md:hidden py-4 border-t border-gray-100">
             <div className="flex flex-col space-y-2">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.path}
                   className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-4 py-3 rounded-md hover:bg-blue-50 transition-colors duration-200"
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.name}</span>
-                </a>
+                </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t border-gray-100">
-                <button className="text-gray-700 hover:text-blue-600 px-4 py-2 text-left">
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-blue-600 px-4 py-2 text-left"
+                >
                   Login
-                </button>
-                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+                >
                   Register
-                </button>
+                </Link>
               </div>
             </div>
           </div>
