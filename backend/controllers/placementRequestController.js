@@ -72,5 +72,23 @@ const createPlacementRequest = async (req, res) => {
     res.status(500).json({ message: "Error creating placement request", error });
   }
 };
+// get placementcell-offers(requests of the placement cells) 
+// ✅ Students view placement requests
+const getPlacementRequests = async (req, res) => {
+  try {
+    // Optionally filter only active ones (before deadline)
+    const today = new Date();
 
-module.exports = { createPlacementRequest };
+    const requests = await PlacementRequest.find({
+      deadline: { $gte: today }
+    })
+      .populate("createdBy", "name email") // optional info of placement officer
+      .sort({ createdAt: -1 });
+
+    res.json(requests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching placement requests", error });
+  }
+};
+
+module.exports = { createPlacementRequest,getPlacementRequests };

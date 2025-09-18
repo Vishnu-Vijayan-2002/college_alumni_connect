@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const Faculty = require("../models/Faculty");
 const Admin = require("../models/Admin");
 const Alumni = require("../models/Alumni");
+const Student = require("../models/Student")
 const PlacementCell = require("../models/PlacementCell");
 
 
@@ -39,6 +40,10 @@ const authMiddleware = async (req, res, next) => {
   user = await PlacementCell.findById(decoded.id).select("name email role");
   if (user) user.role = 'placement-cell';
   }
+  else if (decoded.role === 'student' || decoded.userType === 'student') {
+  user = await Student.findById(decoded.id).select("name email role");
+  if (user) user.role = 'student';
+}
     else {
       // If no specific role, try all models
       user = await Admin.findById(decoded.id).select("name email role") ||
