@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 exports.registerUser = async (req, res) => {
   try {
     // Ensure body is present
+    console.log("Incoming body:", req.body);
+
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'Request body is missing' });
     }
@@ -17,11 +19,13 @@ exports.registerUser = async (req, res) => {
       password,
       confirmPassword,
       department,
+      branch,
       passoutYear,
       role,
       region,
       interestedIn,
       rollNo,
+      classRollNo,
       admissionNo
     } = req.body;
 
@@ -42,59 +46,50 @@ exports.registerUser = async (req, res) => {
     // ============================
     // Student branch
     // ============================
-    if (role === 'student') {
-      if (!rollNo || !admissionNo) {
-        return res.status(400).json({ error: 'Roll number and Admission number are required for students' });
-      }
+if (role === 'student') {
+  // ---------------- Required fields check ----------------
+  if (!rollNo || !admissionNo || !department || !branch || !passoutYear || !classRollNo) {
+    return res.status(400).json({
+      error: 'Roll number, Admission number, Department, Branch, Class Roll Number, and Passout Year are required for students'
+    });
+  }
 
-      // RollNo uniqueness
-      if (await Student.findOne({ rollNo })) {
-        return res.status(400).json({ error: 'Roll number already exists' });
-      }
+  // ---------------- Uniqueness checks ----------------
+  if (await Student.findOne({ rollNo })) {
+    return res.status(400).json({ error: 'Roll number already exists' });
+  }
 
-      // AdmissionNo uniqueness
-      if (await Student.findOne({ admissionNo })) {
-        return res.status(400).json({ error: 'Admission number already exists' });
-      }
+  if (await Student.findOne({ admissionNo })) {
+    return res.status(400).json({ error: 'Admission number already exists' });
+  }
 
-      // ✅ Roll format validation: YYDEPTXXX (e.g. 24MCA58)
-      const rollPattern = /^(\d{2})([A-Z]{3})(\d{1,3})$/i;
-      const match = rollNo.match(rollPattern);
-      if (!match) {
-        return res.status(400).json({ error: 'Invalid roll number format. Expected format: YYDEPTXXX (e.g., 24MCA58)' });
-      }
+  if (await Student.findOne({ classRollNo })) {
+    return res.status(400).json({ error: 'Class Roll Number already exists' });
+  }
 
-      const [_, yearPrefix, deptCode] = match;
-      const joinedYear = parseInt(`20${yearPrefix}`);
-      const currentYear = new Date().getFullYear();
+  // ---------------- Save student ----------------
+  const student = new Student({
+    name,
+    email,
+    password: hashedPassword,
+    department,
+    branch,
+    passoutYear,
+    rollNo,
+    classRollNo,
+    admissionNo,
+    interestedIn,
+    region
+  });
 
-      if (joinedYear < currentYear - 4 || joinedYear > currentYear + 1) {
-        return res.status(400).json({
-          error: `Invalid joined year (${joinedYear}) from roll number. Allowed range: ${currentYear - 4} to ${currentYear + 1}`
-        });
-      }
+  await student.save();
+  return res.status(201).json({
+    message: 'Student registered successfully',
+    user: student
+  });
+}
 
-      if (deptCode.toLowerCase() !== department.toLowerCase()) {
-        return res.status(400).json({
-          error: `Department in roll number (${deptCode}) does not match selected department (${department})`
-        });
-      }
 
-      const student = new Student({
-        name,
-        email,
-        password: hashedPassword,
-        department,
-        passoutYear,
-        rollNo,
-        admissionNo,
-        interestedIn,
-        region
-      });
-
-      await student.save();
-      return res.status(201).json({ message: 'Student registered successfully', user: student });
-    }
 
     // ============================
     // Alumni branch
