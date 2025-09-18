@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard ";
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import JobListings from "./pages/JobListings";
 
 // Pages
 // import RegisterForm from "./pages/RegisterForm";
@@ -69,7 +70,9 @@ function App() {
       <AdminDashboard />
     </ProtectedRoute>
   }
-/>      </Routes>
+/>  
+<Route path="/job-listing" element= {<JobListings/>}/>
+    </Routes>
     </div>
   );
 }
