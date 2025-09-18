@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { toast, ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import BackgroundImage from "../assets/images/login.jpg";
+import { useNavigate } from "react-router-dom";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function RegisterForm() {
+
+  const Navigate = useNavigate();
   const [formData, setFormData] = useState({
     role: "student",
     name: "",
@@ -10,15 +15,16 @@ export default function RegisterForm() {
     password: "",
     confirmPassword: "",
     department: "",
+    branch: "",
     passoutYear: "",
-    region: "",
     rollNo: "",
+    classRollNo: "",
     admissionNo: "",
+    region: "",
     interestedIn: [],
-    company: "",
-    position: "",
-    experience: 0,
   });
+
+  const interestOptions = ["Finance", "Management", "Marketing", "IT"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,12 +53,15 @@ export default function RegisterForm() {
 
     if (formData.role === "student") {
       if (!formData.rollNo) return "Roll number is required for students";
+      if (!formData.classRollNo)
+        return "Class roll number is required for students";
       if (!formData.admissionNo)
         return "Admission number is required for students";
+      if (!formData.branch) return "Branch is required for students";
     }
 
-    if (formData.role === "alumni" && !formData.region) {
-      return "Region is required for alumni";
+    if (formData.role === "alumni") {
+      if (!formData.region) return "Region is required for alumni";
     }
 
     return null;
@@ -67,15 +76,38 @@ export default function RegisterForm() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       const data = await res.json();
       if (res.ok) {
-        toast.success("🎉 Registered successfully!");
+        if (formData.role === "alumni") {
+          toast.info(
+            "🎉 Registration successful! Your request will be verified by our faculty. You will receive an email once verified, then you can log in."
+          );
+        } else {
+          toast.success("🎉 Registered successfully!");
+          Navigate("/login");
+        }
+
+        // Reset form
+        setFormData({
+          role: "student",
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          department: "",
+          branch: "",
+          passoutYear: "",
+          rollNo: "",
+          classRollNo: "",
+          admissionNo: "",
+          region: "",
+          interestedIn: [],
+        });
       } else {
         toast.error("⚠️ " + (data.error || "Registration failed"));
       }
@@ -85,10 +117,15 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-200 via-indigo-100 to-purple-200 p-6">
+    <div
+      className="flex items-center justify-center min-h-screen p-6 bg-cover bg-center relative"
+      style={{ backgroundImage: `url(${BackgroundImage})` }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-200 via-indigo-100 to-purple-200 opacity-50"></div>
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-3xl bg-white shadow-2xl rounded-3xl p-10 grid gap-6 md:grid-cols-2"
+        className="relative w-full max-w-3xl bg-white/30 backdrop-blur-md shadow-2xl rounded-3xl p-10 grid gap-6 md:grid-cols-2"
       >
         <h2 className="col-span-2 text-3xl font-bold text-gray-800 text-center mb-4">
           Registration Form
@@ -112,7 +149,7 @@ export default function RegisterForm() {
           placeholder="Full Name"
           value={formData.name}
           onChange={handleChange}
-          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
         />
 
         {/* Email */}
@@ -122,7 +159,7 @@ export default function RegisterForm() {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
         />
 
         {/* Password */}
@@ -132,7 +169,7 @@ export default function RegisterForm() {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
         />
 
         {/* Confirm Password */}
@@ -142,7 +179,7 @@ export default function RegisterForm() {
           placeholder="Confirm Password"
           value={formData.confirmPassword}
           onChange={handleChange}
-          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
         />
 
         {/* Department */}
@@ -152,7 +189,7 @@ export default function RegisterForm() {
           placeholder="Department"
           value={formData.department}
           onChange={handleChange}
-          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
         />
 
         {/* Passout Year */}
@@ -162,19 +199,35 @@ export default function RegisterForm() {
           placeholder="Passout Year"
           value={formData.passoutYear}
           onChange={handleChange}
-          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+          className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
         />
 
-        {/* Student Fields */}
+        {/* Student-only Fields */}
         {formData.role === "student" && (
           <>
+            <input 
+              type="text"
+              name="branch"
+              placeholder="Branch"
+              value={formData.branch}
+              onChange={handleChange}
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
+            />
             <input
               type="text"
               name="rollNo"
               placeholder="Roll Number"
               value={formData.rollNo}
               onChange={handleChange}
-              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
+            />
+            <input
+              type="text"
+              name="classRollNo"
+              placeholder="Class Roll Number"
+              value={formData.classRollNo}
+              onChange={handleChange}
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
             />
             <input
               type="text"
@@ -182,43 +235,42 @@ export default function RegisterForm() {
               placeholder="Admission Number"
               value={formData.admissionNo}
               onChange={handleChange}
-              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
             />
           </>
         )}
 
-        {/* Alumni Field */}
+        {/* Alumni-only Fields */}
         {formData.role === "alumni" && (
-          <input
-            type="text"
-            name="region"
-            placeholder="Region"
-            value={formData.region}
-            onChange={handleChange}
-            className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full"
-          />
+          <>
+            <input
+              type="text"
+              name="region"
+              placeholder="Region"
+              value={formData.region}
+              onChange={handleChange}
+              className="border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 w-full bg-white/70"
+            />
+
+            <div className="col-span-2">
+              <p className="font-semibold text-gray-700 mb-2">Interested In</p>
+              <div className="flex gap-4 flex-wrap">
+                {interestOptions.map((item) => (
+                  <label key={item} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      value={item}
+                      onChange={handleCheckbox}
+                      checked={formData.interestedIn.includes(item)}
+                      className="accent-blue-500 w-5 h-5"
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </>
         )}
-
-        {/* Interested In */}
-        {/* Interested In */}
-<div className="col-span-2">
-  <p className="font-semibold text-gray-700 mb-2">Interested In</p>
-  <div className="flex gap-4 flex-wrap">
-    {["Job", "Internship", "Programmes"].map((item) => (
-      <label key={item} className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          value={item}
-          onChange={handleCheckbox}
-          checked={formData.interestedIn.includes(item)}
-          className="accent-blue-500 w-5 h-5"
-        />
-        {item}
-      </label>
-    ))}
-  </div>
-</div>
-
 
         {/* Submit Button */}
         <button

@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 // Landing page sections
 import Header from "./components/Header";
@@ -15,16 +15,25 @@ import FeaturedAlumni from "./components/FeaturedAlumni";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import UpcomingEvents from "./components/UpcomingEvents";
+import AdminDashboard from "./pages/AdminDashboard ";
+import LoginForm from "./pages/LoginForm";
+import RegisterForm from "./pages/RegisterForm";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
-// import Login from "./pages/Login";
-// import Dashboard from "./pages/Dashboard";
-import RegisterForm from "./pages/RegisterForm";
+// import RegisterForm from "./pages/RegisterForm";
+// import LoginForm from "./pages/LoginForm";
+// import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
+  const location = useLocation();
+
+  // Hide header only on admin dashboard
+  const hideHeader = location.pathname === "/admin-dashboard";
+
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      {!hideHeader && <Header />}
 
       <Routes>
         {/* Home page with all sections */}
@@ -50,11 +59,17 @@ function App() {
 
         {/* Register & Login pages */}
         <Route path="/register" element={<RegisterForm />} />
-        {/* <Route path="/login" element={<Login />} /> */}
+        <Route path="/login" element={< LoginForm/>} />
 
         {/* Protected Dashboard page */}
-        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-      </Routes>
+<Route
+  path="/admin-dashboard"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <AdminDashboard />
+    </ProtectedRoute>
+  }
+/>      </Routes>
     </div>
   );
 }
