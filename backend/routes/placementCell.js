@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { registerPlacementCell, loginPlacementCell } = require('../controllers/placementCellController');
 const { createRequest, getAllRequests, updateRequestStatus } =require ("../controllers/requestController");
-const {createPlacementRequest} = require("../controllers/placementRequestController");
+const {createPlacementRequest,getPlacementRequests } = require("../controllers/placementRequestController");
 const { protect, authorize } = require("../middleware/authMiddleware");
+const { submitPlacementResponse,getDashboardData } = require("../controllers/placementResponseController");
+
 
 // POST /api/placement-cell/register
 router.post('/register', registerPlacementCell);
@@ -24,5 +26,15 @@ router.patch("/:id", updateRequestStatus);
 
 // POST /api/placement-cell/placement-request → create new placement form
 router.post("/placement-request", protect, authorize(["placement-cell"]), createPlacementRequest);
+// GET /api/placement-cell/placement-request → to see all placement request to students 
+router.get("/placement-request", protect, authorize(["student"]), getPlacementRequests);
+//POST /api/placement-cell/apply  → store students response   (student apply)
+router.post("/apply", protect, authorize(["student"]), submitPlacementResponse);
+
+// GET /api/placement-cell/responses/:requestId
+router.get("/dashboard",protect,authorize(["placement-cell"]),getDashboardData);
+
+
 module.exports = router;
+
 
