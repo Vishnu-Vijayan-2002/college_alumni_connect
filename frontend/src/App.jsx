@@ -19,8 +19,12 @@ import UpcomingEvents from "./components/UpcomingEvents";
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+<<<<<<< HEAD
 import StudentDashboard from "./pages/StudentDashboard";
 
+=======
+import JobListings from "./pages/JobListings";
+>>>>>>> 35c03cc567be1e523a0d62fef05adcb76663c059
 
 // Pages
 // import RegisterForm from "./pages/RegisterForm";
@@ -74,12 +78,18 @@ function App() {
       <AdminDashboard />
     </ProtectedRoute>
   }
+<<<<<<< HEAD
 />    
  <Route path="/student-dasborad" element={ <ProtectedRoute allowedRoles={["student"]}>
           <StudentDashboard />
           </ProtectedRoute>}
            />
   </Routes>
+=======
+/>  
+<Route path="/job-listing" element= {<JobListings/>}/>
+    </Routes>
+>>>>>>> 35c03cc567be1e523a0d62fef05adcb76663c059
     </div>
   );
 
