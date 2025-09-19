@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard ";
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
 
 // Pages
 // import RegisterForm from "./pages/RegisterForm";
@@ -29,13 +30,14 @@ function App() {
   const location = useLocation();
 
   // Hide header only on admin dashboard
-  const hideHeader = location.pathname === "/admin-dashboard";
+  const hideHeader = location.pathname === "/admin-dashboard" || "/placement-dashboard" ;
+  
 
   return (
     <div className="min-h-screen bg-white">
       {!hideHeader && <Header />}
 
-      <Routes>
+      <Routes>  
         {/* Home page with all sections */}
         <Route
           path="/"
@@ -69,7 +71,16 @@ function App() {
       <AdminDashboard />
     </ProtectedRoute>
   }
-/>      </Routes>
+/> 
+<Route
+  path="/placement-dashboard"
+  element={
+    <ProtectedRoute allowedRoles={["placement-cell"]}>
+      <PlacementcellDashboard />
+    </ProtectedRoute>
+  }
+/>     
+  </Routes>
     </div>
   );
 }

@@ -9,9 +9,9 @@ const { loginPlacementCell } = require('../controllers/placementCellController')
 // Register and Login
 router.post('/register', upload.single('profileImage'), registerUser);
 router.post('/login', loginUser);
-router.post('/login', adminLogin);
+// router.post('/login', adminLogin);
 // placement cell
-router.post('/login', loginPlacementCell);
+// router.post('/login', loginPlacementCell);
 
 // for testing 
 // router.get('/admin', protect, authorizeRoles('admin'), (req, res) => {
