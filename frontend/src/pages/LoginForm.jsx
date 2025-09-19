@@ -61,7 +61,7 @@ export default function LoginForm() {
     if (role === "admin") navigate("/admin-dashboard");
     else if (role === "faculty") navigate("/faculty-dashboard");
     else if (role === "placement") navigate("/placement-dashboard");
-    else navigate("/");
+    else navigate("/student-dasborad");
   } catch (err) {
     setError(err.message);
   } finally {
