@@ -11,6 +11,7 @@ router.post('/register', upload.single('profileImage'), registerUser);
 router.post('/login', loginUser);
 // router.post('/login', adminLogin);
 // placement cell
+<<<<<<< HEAD
 // router.post('/login', loginPlacementCell);
 
 // for testing 
@@ -30,4 +31,7 @@ router.post('/login', loginUser);
 //   res.json({ message: 'Welcome alumni !' });
 // });
 
+=======
+router.post('/login', loginPlacementCell);
+>>>>>>> 91f73076d85dc950e2564d4341ced307a207f0d1
 module.exports = router;

@@ -27,7 +27,7 @@ export default function LoginForm() {
     setError("");
     setLoading(true);
 
-    try {
+   try {
       // ✅ Choose API based on role
       let apiUrl = "";
       if (formData.role === "admin") {
@@ -46,13 +46,12 @@ export default function LoginForm() {
       const res = await axios.post(apiUrl, formData, {
         headers: { "Content-Type": "application/json" },
       });
-
       const data = res.data;
 
-      // Store token
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
+    // Store token and user info in localStorage
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
 
       if (data.admin || data.user) {
         const userInfo = data.admin || data.user;
@@ -63,7 +62,7 @@ export default function LoginForm() {
         localStorage.setItem("user", JSON.stringify(userInfo));
       }
 
-      // ✅ Redirect based on role
+  // ✅ Redirect based on role
       const role = data.admin?.role || data.user?.role;
       if (role === "admin") navigate("/admin-dashboard");
       else if (role === "faculty") navigate("/faculty-dashboard");
@@ -77,6 +76,7 @@ export default function LoginForm() {
       setLoading(false);
     }
   };
+
 
   return (
     <div
@@ -114,7 +114,7 @@ export default function LoginForm() {
                 <option value="student">Student</option>
                 <option value="alumni">Alumni</option>
                 <option value="faculty">Faculty</option>
-                <option value="placement-cell">Placement Cell</option>
+                <option value="placement-cell">placement-cell</option>
                 <option value="admin">Admin</option>
               </select>
             </div>

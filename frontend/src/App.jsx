@@ -15,10 +15,16 @@ import FeaturedAlumni from "./components/FeaturedAlumni";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import UpcomingEvents from "./components/UpcomingEvents";
-import AdminDashboard from "./pages/AdminDashboard ";
+import AdminDashboard from "./pages/AdminDashboard";
+
+// Auth pages
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
+
+// Dashboards & Protected routes
 import ProtectedRoute from "./components/ProtectedRoute";
+import StudentDashboard from "./pages/StudentDashboard";
+import JobListings from "./pages/JobListings";
 import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
 
 // Pages
@@ -30,14 +36,16 @@ function App() {
   const location = useLocation();
 
   // Hide header only on admin dashboard
-  const hideHeader = location.pathname === "/admin-dashboard" || "/placement-dashboard" ;
-  
+  const hideHeader =
+    location.pathname === "/admin-dashboard" ||
+    location.pathname === "/placement-dashboard" ||
+    location.pathname === "/student-dashboard";
 
   return (
     <div className="min-h-screen bg-white">
       {!hideHeader && <Header />}
 
-      <Routes>  
+      <Routes>
         {/* Home page with all sections */}
         <Route
           path="/"
@@ -61,26 +69,40 @@ function App() {
 
         {/* Register & Login pages */}
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/login" element={< LoginForm/>} />
+        <Route path="/login" element={<LoginForm />} />
+        
 
-        {/* Protected Dashboard page */}
-<Route
-  path="/admin-dashboard"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AdminDashboard />
-    </ProtectedRoute>
-  }
-/> 
-<Route
-  path="/placement-dashboard"
-  element={
-    <ProtectedRoute allowedRoles={["placement-cell"]}>
-      <PlacementcellDashboard />
-    </ProtectedRoute>
-  }
-/>     
-  </Routes>
+        {/* Protected Dashboards */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/placement-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+              <PlacementcellDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/student-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Job listings (public or protected?) */}
+        <Route path="/job-listing" element={<JobListings />} />
+      </Routes>
     </div>
   );
 }
