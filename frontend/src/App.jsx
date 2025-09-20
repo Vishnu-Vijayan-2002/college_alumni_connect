@@ -15,20 +15,43 @@ import FeaturedAlumni from "./components/FeaturedAlumni";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import UpcomingEvents from "./components/UpcomingEvents";
+import AdminDashboard from "./pages/AdminDashboard";
 
+// Auth pages
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
+<<<<<<< HEAD
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobListings from "./pages/JobListings";
 import AdminDashboard from "./pages/admin-side/AdminDashboard";
+=======
+
+// Dashboards & Protected routes
+import ProtectedRoute from "./components/ProtectedRoute";
+import StudentDashboard from "./pages/StudentDashboard";
+import JobListings from "./pages/JobListings";
+import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
+
+// Pages
+// import RegisterForm from "./pages/RegisterForm";
+// import LoginForm from "./pages/LoginForm";
+// import AdminDashboard from "./pages/AdminDashboard";
+>>>>>>> aa9d6c20fbf068e32b82e42db188da71d0475c32
 
 function App() {
   const location = useLocation();
 
+<<<<<<< HEAD
   // Hide header only on dashboards
   const hideHeader =
     location.pathname === "/admin-dashboard" ||
+=======
+  // Hide header only on admin dashboard
+  const hideHeader =
+    location.pathname === "/admin-dashboard" ||
+    location.pathname === "/placement-dashboard" ||
+>>>>>>> aa9d6c20fbf068e32b82e42db188da71d0475c32
     location.pathname === "/student-dashboard";
 
   return (
@@ -60,8 +83,14 @@ function App() {
         {/* Register & Login pages */}
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<LoginForm />} />
+<<<<<<< HEAD
 
         {/* Protected Dashboard pages */}
+=======
+        
+
+        {/* Protected Dashboards */}
+>>>>>>> aa9d6c20fbf068e32b82e42db188da71d0475c32
         <Route
           path="/admin-dashboard"
           element={
@@ -72,6 +101,18 @@ function App() {
         />
 
         <Route
+<<<<<<< HEAD
+=======
+          path="/placement-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+              <PlacementcellDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+>>>>>>> aa9d6c20fbf068e32b82e42db188da71d0475c32
           path="/student-dashboard"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
@@ -80,6 +121,10 @@ function App() {
           }
         />
 
+<<<<<<< HEAD
+=======
+        {/* Job listings (public or protected?) */}
+>>>>>>> aa9d6c20fbf068e32b82e42db188da71d0475c32
         <Route path="/job-listing" element={<JobListings />} />
       </Routes>
     </div>
