@@ -19,25 +19,17 @@ import UpcomingEvents from "./components/UpcomingEvents";
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
-<<<<<<< HEAD
 import StudentDashboard from "./pages/StudentDashboard";
-
-=======
 import JobListings from "./pages/JobListings";
->>>>>>> 35c03cc567be1e523a0d62fef05adcb76663c059
-
-// Pages
-// import RegisterForm from "./pages/RegisterForm";
-// import LoginForm from "./pages/LoginForm";
-// import AdminDashboard from "./pages/AdminDashboard";
-import AdminDashboard from './pages/admin-side/AdminDashboard';
-
+import AdminDashboard from "./pages/admin-side/AdminDashboard";
 
 function App() {
   const location = useLocation();
 
-  // Hide header only on admin dashboard
-  const hideHeader = location.pathname === "/admin-dashboard" || location.pathname ==="/student-dasborad";
+  // Hide header only on dashboards
+  const hideHeader =
+    location.pathname === "/admin-dashboard" ||
+    location.pathname === "/student-dashboard";
 
   return (
     <div className="min-h-screen bg-white">
@@ -64,36 +56,34 @@ function App() {
             </>
           }
         />
-         
+
         {/* Register & Login pages */}
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/login" element={< LoginForm/>} />
+        <Route path="/login" element={<LoginForm />} />
 
+        {/* Protected Dashboard pages */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Protected Dashboard page */}
-<Route
-  path="/admin-dashboard"
-  element={
-    <ProtectedRoute allowedRoles={["admin"]}>
-      <AdminDashboard />
-    </ProtectedRoute>
-  }
-<<<<<<< HEAD
-/>    
- <Route path="/student-dasborad" element={ <ProtectedRoute allowedRoles={["student"]}>
-          <StudentDashboard />
-          </ProtectedRoute>}
-           />
-  </Routes>
-=======
-/>  
-<Route path="/job-listing" element= {<JobListings/>}/>
-    </Routes>
->>>>>>> 35c03cc567be1e523a0d62fef05adcb76663c059
+        <Route
+          path="/student-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/job-listing" element={<JobListings />} />
+      </Routes>
     </div>
   );
-
-
 }
 
 export default App;
