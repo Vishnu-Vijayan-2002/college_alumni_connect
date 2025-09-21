@@ -8,34 +8,38 @@ function AlumniProfile() {
   const [formData, setFormData] = useState(storedUser);
   const [isEditing, setIsEditing] = useState(false);
 
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token"); // JWT token stored after login
+
   // Fetch profile by ID
   useEffect(() => {
     const fetchProfile = async () => {
-      if (storedUser?._id && storedUser?.token) {
+      if (userId && token) {
         try {
           const res = await axios.get(
-            `http://localhost:5000/api/alumni/profile/${storedUser._id}`,
+            `http://localhost:5000/api/alumni/profile/${userId}`,
             {
               headers: {
-                Authorization: `Bearer ${storedUser.token}`, // send token
+                Authorization: `Bearer ${token}`,
               },
             }
           );
           setFormData(res.data.data);
-          // keep token in localStorage
           localStorage.setItem(
             "user",
-            JSON.stringify({ ...res.data.data, token: storedUser.token })
+            JSON.stringify({ ...res.data.data, token }) // preserve token
           );
         } catch (err) {
           console.error(err);
-          toast.error("Failed to fetch profile ❌");
+          toast.error(
+            err.response?.data?.message || "Failed to fetch profile ❌"
+          );
         }
       }
     };
 
     fetchProfile();
-  }, [storedUser]);
+  }, [userId, token]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -45,12 +49,11 @@ function AlumniProfile() {
 
   // Save changes
   const handleSave = async () => {
-    try {
-      const token = storedUser.token;
-      if (!token) throw new Error("Unauthorized: No token found");
+    if (!token) return toast.error("Unauthorized: No token found ❌");
 
+    try {
       const res = await axios.put(
-        `http://localhost:5000/api/alumni/profile/${storedUser._id}`,
+        `http://localhost:5000/api/alumni/profile/${userId}`,
         formData,
         {
           headers: {
@@ -62,12 +65,8 @@ function AlumniProfile() {
 
       toast.success("Profile updated successfully ✅");
 
-      // Update state and localStorage
       setFormData(res.data.data);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ ...res.data.data, token })
-      );
+      localStorage.setItem("user", JSON.stringify({ ...res.data.data, token }));
       setIsEditing(false);
     } catch (error) {
       console.error(error);

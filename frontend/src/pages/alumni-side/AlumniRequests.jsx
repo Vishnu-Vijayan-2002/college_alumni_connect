@@ -6,17 +6,17 @@ import { Link } from "react-router-dom";
 function AlumniRequests() {
   const [requests, setRequests] = useState([]);
   const user = JSON.parse(localStorage.getItem("user")) || {};
-
+  const userID=localStorage.getItem("userId")
   useEffect(() => {
     fetchRequests();
-  }, [user?.id]);
+  }, [userID]);
 
   const fetchRequests = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/requests/get-request");
       // ✅ only this alumni’s requests
       const alumniRequests = (res.data || []).filter(
-        (req) => req.alumniId === user.id
+        (req) => req.alumniId === userID
       );
       setRequests(alumniRequests);
     } catch (err) {
