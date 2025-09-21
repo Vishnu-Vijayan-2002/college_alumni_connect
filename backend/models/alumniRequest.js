@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const requestSchema = new mongoose.Schema({
-  alumniId: { type: mongoose.Schema.Types.ObjectId, ref: 'alumnis', required: true },
+  alumniId: { type: mongoose.Schema.Types.ObjectId, ref: 'Alumni', required: true },
 
   type: { 
     type: String, 
@@ -29,6 +29,8 @@ const requestSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
+    forwarded: { type: Boolean, default: false },
+    
 
 }, { timestamps: true }); // adds createdAt & updatedAt automatically
 

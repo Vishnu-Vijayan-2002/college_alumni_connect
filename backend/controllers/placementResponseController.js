@@ -87,8 +87,47 @@ const getDashboardData = async (req, res) => {
   }
 };
 
+const getApplicantsData = async (req, res) => {
+  try {
+    const { id } = req.params; // placement request ID
+
+    // 1. Ensure the placement request exists
+    const request = await PlacementRequest.findById(id);
+    if (!request) {
+      return res.status(404).json({ error: "Placement request not found" });
+    }
+
+    // 2. Fetch all responses for this request
+    const responses = await PlacementResponse.find({ requestId: id })
+      .populate("studentId", "name email rollNo department cgpa");
+
+    // 3. Group applicants by department
+    const byDepartment = {};
+    responses.forEach((resp) => {
+      const dept = resp.studentId.department || "Unknown";
+      if (!byDepartment[dept]) byDepartment[dept] = [];
+      byDepartment[dept].push({
+        student: resp.studentId,
+        answers: resp.answers,
+        appliedAt: resp.createdAt,
+        status: resp.status,
+      });
+    });
+
+    res.json({
+      requestId: id,
+      formTitle: request.formTitle,
+      totalApplicants: responses.length,
+      byDepartment, // 👈 grouped format
+    });
+  } catch (error) {
+    console.error("❌ Error fetching applicants:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
 
 module.exports={
     submitPlacementResponse,
-    getDashboardData
+    getDashboardData,
+    getApplicantsData
 }

@@ -83,8 +83,16 @@ const getAllRequests = async (req, res) => {
   }
 };
 
-// ✅ Approve/Reject a request
+const getApprovedRequests = async (req, res) => {
+  try {
+    const requests = await RequestModel.find({status: "approved",forwarded: false}).sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching requests", error });
+  }
+};
 
+// ✅ Approve/Reject a request
 // Update request status (placement-cell only)
 const updateRequestStatus = async (req, res) => {
   try {
@@ -134,9 +142,28 @@ Placement Cell Team`;
   }
 };
 
+const getApprovedRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const request = await RequestModel.findOne({ _id: id, status: "approved" });
+
+    if (!request) {
+      return res.status(404).json({ message: "Approved request not found" });
+    }
+
+    res.json(request);
+  } catch (error) {
+    console.error("Error fetching approved request:", error);
+    res.status(500).json({ message: "Error fetching approved request", error });
+  }
+};
+
 
 module.exports = {
   createRequest,
   getAllRequests,
   updateRequestStatus,
+  getApprovedRequestById,
+  getApprovedRequests
 };

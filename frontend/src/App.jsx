@@ -15,7 +15,8 @@ import FeaturedAlumni from "./components/FeaturedAlumni";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import UpcomingEvents from "./components/UpcomingEvents";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/admin-side/AdminDashboard";
+import PlacementRequestsPage from "./pages/placementcell/PlacementRequestsPage";
 
 // Auth pages
 import LoginForm from "./pages/LoginForm";
@@ -26,6 +27,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobListings from "./pages/JobListings";
 import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
+import ApplicantsPage from "./pages/placementcell/ApplicantsPage ";
+import PlacementFormsPage from "./pages/placementcell/PlacementFormsPage";
+import PlacementFormDetailPage from "./pages/placementcell/PlacementFormDetailPage";
 
 // Pages
 // import RegisterForm from "./pages/RegisterForm";
@@ -90,7 +94,38 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/placement-requests"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+            <PlacementRequestsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+          path="/placement-dashboard/applicants/:requestId" 
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+            <ApplicantsPage/>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+          path="/placement-forms"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+              <PlacementFormsPage/>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="placement-form/:placementId"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+              <PlacementFormDetailPage/>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/student-dashboard"
           element={
@@ -99,7 +134,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        
         {/* Job listings (public or protected?) */}
         <Route path="/job-listing" element={<JobListings />} />
       </Routes>
