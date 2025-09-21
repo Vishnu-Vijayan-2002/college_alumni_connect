@@ -10,6 +10,7 @@ const createRequest = async (req, res) => {
       alumniId,
       type,
       title,
+      companyName, // ✅ Added company name
       description,
       department,
       duration,
@@ -19,21 +20,31 @@ const createRequest = async (req, res) => {
       placementProcess,
     } = req.body;
 
-    // Check alumni verification
+    // Check alumni existence
     const alumni = await Alumni.findById(alumniId);
     if (!alumni) {
       return res.status(404).json({ message: "Alumni not found" });
     }
-    if (alumni.verificationStatus.trim() !== "approved") {
+
+    // Check alumni verification
+    if (alumni.verificationStatus.trim() !== "verified") {
       return res
         .status(403)
         .json({ message: "Only verified alumni can post requests" });
+    }
+
+    // Ensure name and email exist
+    if (!alumni.name || !alumni.email) {
+      return res
+        .status(400)
+        .json({ message: "Alumni name and email are required" });
     }
 
     const newRequest = new RequestModel({
       alumniId,
       type,
       title,
+      companyName, // ✅ include company name in DB
       description,
       department,
       duration,
@@ -45,8 +56,8 @@ const createRequest = async (req, res) => {
 
     await newRequest.save();
 
-    // ✅ Send email notification to admin/placement cell
-    const emailRecipient = "akashp4010@gmail.com"; // replace with your target email
+    // Send email notification to admin/placement cell
+    const emailRecipient = "vishnuvijayan7909@gmail.com"; // replace with your target email
     await sendEmail(
       emailRecipient,
       `New ${type} request submitted`,
@@ -56,6 +67,7 @@ const createRequest = async (req, res) => {
         <p><b>Alumni:</b> ${alumni.name} (${alumni.email})</p>
         <p><b>Type:</b> ${type}</p>
         <p><b>Title:</b> ${title}</p>
+        <p><b>Company/Organization:</b> ${companyName || "N/A"}</p>
         <p><b>Description:</b> ${description}</p>
         <p><b>Department:</b> ${department}</p>
         <p><b>Position:</b> ${position || "N/A"}</p>
@@ -65,14 +77,18 @@ const createRequest = async (req, res) => {
       `
     );
 
+    // ✅ Return full request in response including company name
     res.status(201).json({
       message: "Request submitted successfully & email sent",
       request: newRequest,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error submitting request", error });
   }
 };
+
+
 // ✅ Get all requests
 const getAllRequests = async (req, res) => {
   try {

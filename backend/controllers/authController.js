@@ -185,6 +185,8 @@ exports.loginUser = async (req, res) => {
     department: user.department,
     branch: user.branch,
     passoutYear: user.passoutYear,
+    verificationStatus:user.verificationStatus,
+    region:user.region
   },
 });
 
