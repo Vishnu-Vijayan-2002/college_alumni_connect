@@ -22,11 +22,14 @@ import PlacementRequestsPage from "./pages/placementcell/PlacementRequestsPage";
 import LoginForm from "./pages/LoginForm";
 import RegisterForm from "./pages/RegisterForm";
 
-// Dashboards & Protected routes
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobListings from "./pages/JobListings";
+import AdminDashboard from "./pages/admin-side/AdminDashboard";
+
+// Dashboards & Protected routes
 import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
+import AlumniDashboard from "./pages/alumni-side/AlumniDashboard";
 import ApplicantsPage from "./pages/placementcell/ApplicantsPage ";
 import PlacementFormsPage from "./pages/placementcell/PlacementFormsPage";
 import PlacementFormDetailPage from "./pages/placementcell/PlacementFormDetailPage";
@@ -38,8 +41,6 @@ import PlacementFormDetailPage from "./pages/placementcell/PlacementFormDetailPa
 
 function App() {
   const location = useLocation();
-
-  // Hide header only on admin dashboard
   const hideHeader =
     location.pathname === "/admin-dashboard" ||
     location.pathname === "/placement-dashboard" ||
@@ -74,6 +75,10 @@ function App() {
         {/* Register & Login pages */}
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<LoginForm />} />
+
+
+        {/* Protected Dashboard pages */}
+
         
 
         {/* Protected Dashboards */}
@@ -134,7 +139,16 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+{/* <Route path="/" element={<AlumniDashboard />} /> */}
+     <Route
+          path="/alumni-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["alumni"]}>
+              <AlumniDashboard />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Job listings (public or protected?) */}
         <Route path="/job-listing" element={<JobListings />} />
       </Routes>

@@ -4,8 +4,6 @@ import { Home, Users, GraduationCap, Briefcase, Calendar, Settings } from "lucid
 const Sidebar = ({ active, setActive }) => {
   const menuItems = [
     { name: "Dashboard", icon: <Home size={18} /> },
-    { name: "Users", icon: <Users size={18} /> },
-    { name: "Students", icon: <GraduationCap size={18} /> },
     { name: "Alumni", icon: <Briefcase size={18} /> },
     { name: "Events", icon: <Calendar size={18} /> },
     { name: "Faculty", icon: <Users size={18} /> },

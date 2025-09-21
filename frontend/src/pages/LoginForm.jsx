@@ -4,6 +4,10 @@ import MyImage from "../assets/images/tkm4.jpg";
 import BackgroundImage from "../assets/images/login.jpg";
 import { Link, useNavigate } from "react-router-dom";
 
+// ✅ Import Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function LoginForm() {
   const navigate = useNavigate();
 
@@ -14,7 +18,6 @@ export default function LoginForm() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Handle input changes
   const handleChange = (e) => {
@@ -24,10 +27,9 @@ export default function LoginForm() {
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
-   try {
+    try {
       // ✅ Choose API based on role
       let apiUrl = "";
       if (formData.role === "admin") {
@@ -48,10 +50,10 @@ export default function LoginForm() {
       });
       const data = res.data;
 
-    // Store token and user info in localStorage
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-    }
+      // ✅ Store token and user info in localStorage
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       if (data.admin || data.user) {
         const userInfo = data.admin || data.user;
@@ -62,21 +64,41 @@ export default function LoginForm() {
         localStorage.setItem("user", JSON.stringify(userInfo));
       }
 
-  // ✅ Redirect based on role
+      // ✅ Redirect based on role
       const role = data.admin?.role || data.user?.role;
-      if (role === "admin") navigate("/admin-dashboard");
-      else if (role === "faculty") navigate("/faculty-dashboard");
-      else if (role === "placement-cell") navigate("/placement-dashboard");
-      else if (role === "alumni") navigate("/alumni-dashboard");
-      else navigate("/student-dashboard");
+      const status = data.user?.verificationStatus;
+      console.log(data);
+      
 
+      if (role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (role === "faculty") {
+        navigate("/faculty-dashboard");
+      } else if (role === "placement-cell") {
+        navigate("/placement-dashboard");
+      } else if (role === "alumni") {
+        if (status === "verified") {
+          navigate("/alumni-dashboard");
+        } else {
+          // ✅ Show toast message before redirect
+          toast.warning("Your registration is pending approval", {
+            position: "top-center",
+            autoClose: 2000,
+          });
+        }
+      } else {
+        navigate("/student-dashboard");
+      }
     } catch (err) {
-      setError(err.response?.data?.error || err.message || "Login failed");
+      // ✅ Show error toast
+      toast.error(err.response?.data?.error || err.message || "Login failed", {
+        position: "top-center",
+        autoClose: 3000,
+      });
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div
@@ -114,7 +136,7 @@ export default function LoginForm() {
                 <option value="student">Student</option>
                 <option value="alumni">Alumni</option>
                 <option value="faculty">Faculty</option>
-                <option value="placement-cell">placement-cell</option>
+                <option value="placement-cell">Placement Cell</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
@@ -147,8 +169,6 @@ export default function LoginForm() {
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
             <div className="flex justify-between items-center text-sm text-gray-600">
               <label className="flex items-center gap-2">
                 <input type="checkbox" className="w-4 h-4 accent-blue-500" />
@@ -178,6 +198,9 @@ export default function LoginForm() {
           </p>
         </div>
       </div>
+
+      {/* ✅ Toast Container */}
+      <ToastContainer />
     </div>
   );
 }
