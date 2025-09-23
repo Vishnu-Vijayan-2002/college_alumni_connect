@@ -15,13 +15,12 @@ router.post('/login', loginPlacementCell);
 
 /* ========= Request Routes ========= */
 // POST /api/requests → create new request (job, internship, program)
-        router.post("/new-request", createRequest);
-
+        
 // GET /api/requests → get all requests
 router.get("/get-request", getAllRequests);
 
 // GET /api/requests → get Approved request requests + not sent
-router.get('/approved-request',getApprovedRequests);
+// router.get('/approved-request',getApprovedRequests);
 
 // PATCH /api/requests/:id → approve/reject a request
 // http://localhost:5000/api/requests/request_id

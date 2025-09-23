@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { getAllAlumni, getAlumniById, updateVerificationStatus, updateAlumniProfile } = require("../controllers/alumniController");
 const { protect, authorize } = require("../middleware/authMiddleware");
+const {createRequest} = require("../controllers/requestController");
 
 // Public
 router.get("/get-all-alumni", getAllAlumni);
@@ -14,5 +15,6 @@ router.put("/:email/status", protect, authorize(["admin", "faculty"]), updateVer
 
 // Update profile by ID
 router.put("/profile/:id", protect, updateAlumniProfile);
+router.post("/new-request",createRequest);
 
 module.exports = router;

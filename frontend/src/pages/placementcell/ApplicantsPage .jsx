@@ -61,32 +61,44 @@ function ApplicantsPage() {
   };
 
   return (
-    <div className="p-6">
-      {/* Top bar */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-8 bg-gradient-to-br from-indigo-50 via-white to-blue-50 min-h-screen">
+      {/* Top Bar */}
+      <div className="flex justify-between items-center mb-8">
+        {/* Left: Back button */}
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 shadow-sm"
         >
           ← Back
         </button>
 
+        {/* Right: Download button */}
         <button
           onClick={exportToExcel}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700"
         >
           ⬇ Download Excel
         </button>
       </div>
 
-      <h1 className="text-2xl font-bold mb-2">Applicants for {formTitle}</h1>
-      <p className="text-gray-600 mb-6">Total Applicants: {totalApplicants}</p>
+      {/* Page Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-extrabold text-indigo-700 mb-2">
+          Applicants for {formTitle}
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Total Applicants:{" "}
+          <span className="font-semibold text-gray-800">
+            {totalApplicants}
+          </span>
+        </p>
+      </div>
 
+      {/* Department-wise Tables */}
       {Object.keys(byDepartment).length === 0 ? (
         <p>No applicants found.</p>
       ) : (
         Object.keys(byDepartment).map((dept) => {
-          // Collect all dynamic fields for this department
           const applicants = byDepartment[dept];
           const dynamicFields = new Set();
           applicants.forEach((app) => {
@@ -96,24 +108,26 @@ function ApplicantsPage() {
           });
 
           return (
-            <div key={dept} className="mb-10">
-              <h2 className="text-xl font-semibold mb-3">{dept} Department</h2>
+            <div
+              key={dept}
+              className="mb-12 bg-white rounded-2xl shadow-md p-6 border border-gray-100"
+            >
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                {dept} Department
+              </h2>
 
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-300 shadow-sm">
-                  <thead className="bg-gray-100">
+                <table className="w-full border-collapse text-sm">
+                  <thead className="bg-indigo-100 text-indigo-800">
                     <tr>
-                      <th className="border border-gray-300 px-4 py-2">Name</th>
-                      <th className="border border-gray-300 px-4 py-2">Email</th>
-                      <th className="border border-gray-300 px-4 py-2">Roll No</th>
-                      <th className="border border-gray-300 px-4 py-2">Status</th>
-                      <th className="border border-gray-300 px-4 py-2">Applied At</th>
+                      <th className="px-4 py-3 text-left">Name</th>
+                      <th className="px-4 py-3 text-left">Email</th>
+                      <th className="px-4 py-3 text-left">Roll No</th>
+                      <th className="px-4 py-3 text-left">Status</th>
+                      <th className="px-4 py-3 text-left">Applied At</th>
                       {/* Dynamic fields */}
                       {[...dynamicFields].map((field) => (
-                        <th
-                          key={field}
-                          className="border border-gray-300 px-4 py-2"
-                        >
+                        <th key={field} className="px-4 py-3 text-left">
                           {field}
                         </th>
                       ))}
@@ -121,28 +135,19 @@ function ApplicantsPage() {
                   </thead>
                   <tbody>
                     {applicants.map((app, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50 transition">
-                        <td className="border border-gray-300 px-4 py-2">
-                          {app.student.name}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {app.student.email}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {app.student.rollNo}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2 capitalize">
-                          {app.status}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                      <tr
+                        key={idx}
+                        className="border-b last:border-none hover:bg-gray-50 transition"
+                      >
+                        <td className="px-4 py-2">{app.student.name}</td>
+                        <td className="px-4 py-2">{app.student.email}</td>
+                        <td className="px-4 py-2">{app.student.rollNo}</td>
+                        <td className="px-4 py-2 capitalize">{app.status}</td>
+                        <td className="px-4 py-2">
                           {new Date(app.appliedAt).toLocaleDateString()}
                         </td>
-                        {/* Dynamic fields */}
                         {[...dynamicFields].map((field) => (
-                          <td
-                            key={field}
-                            className="border border-gray-300 px-4 py-2"
-                          >
+                          <td key={field} className="px-4 py-2">
                             {app.answers[field] || "-"}
                           </td>
                         ))}

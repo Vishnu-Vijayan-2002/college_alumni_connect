@@ -25,7 +25,6 @@ import RegisterForm from "./pages/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobListings from "./pages/JobListings";
-import AdminDashboard from "./pages/admin-side/AdminDashboard";
 
 // Dashboards & Protected routes
 import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
@@ -48,6 +47,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
+      
       {!hideHeader && <Header />}
 
       <Routes>

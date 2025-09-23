@@ -12,18 +12,22 @@ function AlumniRequests() {
   }, [userID]);
 
   const fetchRequests = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/requests/get-request");
-      // ✅ only this alumni’s requests
-      const alumniRequests = (res.data || []).filter(
-        (req) => req.alumniId === userID
-      );
-      setRequests(alumniRequests);
-    } catch (err) {
-      console.error("Error fetching requests:", err.message);
-      toast.error("Failed to load your requests.");
-    }
-  };
+  try {
+    const res = await axios.get("http://localhost:5000/api/placement-cell/get-request");
+    const allRequests = res.data || [];
+
+    // ✅ only include requests belonging to this alumni
+    const alumniRequests = allRequests.filter(
+      (req) => req.alumniId && req.alumniId._id === userID
+    );
+
+    setRequests(alumniRequests);
+  } catch (err) {
+    console.error("Error fetching requests:", err.message);
+    toast.error("Failed to load your requests.");
+  }
+};
+
 
   return (
     <div style={{width:"100%"}} className="min-h-screen bg-white-100 p-6">
@@ -51,14 +55,14 @@ function AlumniRequests() {
                   <td className="border p-2">{req.department}</td>
                   <td
                     className={`border p-2 font-medium ${
-                      req.status === "Approved"
+                      req.status === "approved"
                         ? "text-green-600"
-                        : req.status === "Rejected"
+                        : req.status === "rejected"
                         ? "text-red-600"
                         : "text-yellow-600"
                     }`}
                   >
-                    {req.status || "Pending"}
+                    {req.status || "pending"}
                   </td>
                 </tr>
               ))}

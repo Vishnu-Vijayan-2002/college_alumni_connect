@@ -155,7 +155,9 @@ const sendToStudents = async (req, res) => {
     });
 
     await newPlacement.save();
-    await RequestModel.findByIdAndUpdate(id, { forwarded: true });
+
+    // 3. Mark alumni request as forwarded ✅
+    await AlumniRequest.findByIdAndUpdate(id, { forwarded: true });
 
     res.status(201).json({
       message: "✅ Alumni request successfully forwarded to students",
@@ -166,6 +168,7 @@ const sendToStudents = async (req, res) => {
     res.status(500).json({ message: "Error sending to students", error });
   }
 };
+
 
 module.exports = {
   createPlacementRequest,

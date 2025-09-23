@@ -18,6 +18,7 @@ const createRequest = async (req, res) => {
       salary,
       position,
       placementProcess,
+      forwarded
     } = req.body;
 
     // Check alumni existence
@@ -52,6 +53,7 @@ const createRequest = async (req, res) => {
       salary,
       position,
       placementProcess,
+      forwarded
     });
 
     await newRequest.save();
@@ -92,21 +94,17 @@ const createRequest = async (req, res) => {
 // ✅ Get all requests
 const getAllRequests = async (req, res) => {
   try {
-    const requests = await RequestModel.find().sort({ createdAt: -1 });
+    const requests = await RequestModel.find()
+      .populate("alumniId", "name email") // 👈 fetch alumni's name & email
+      .sort({ createdAt: -1 });
+
     res.json(requests);
   } catch (error) {
+    console.error("❌ Error fetching requests:", error);
     res.status(500).json({ message: "Error fetching requests", error });
   }
 };
 
-const getApprovedRequests = async (req, res) => {
-  try {
-    const requests = await RequestModel.find({status: "approved",forwarded: false}).sort({ createdAt: -1 });
-    res.json(requests);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching requests", error });
-  }
-};
 
 // ✅ Approve/Reject a request
 // Update request status (placement-cell only)
@@ -119,20 +117,48 @@ const updateRequestStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
-    // Update request status
+    // Find the request first
+    const request = await RequestModel.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    // ✅ If rejected → delete instead of keeping it
+    if (status === "rejected") {
+      // await RequestModel.findByIdAndDelete(req.params.id);
+      await RequestModel.findByIdAndUpdate(req.params.id,{ status: "rejected" },{ new: true });
+
+      // Inform alumni via email
+      const alumni = await Alumni.findById(request.alumniId);
+      if (alumni && alumni.email) {
+        const subject = "Your Request has been Rejected";
+        const text = `Hello ${alumni.name},
+
+Your request titled "${request.title}" has been reviewed by the Placement Cell.
+
+❌ Status: REJECTED
+
+Thank you,
+Placement Cell Team`;
+
+        await sendEmail(alumni.email, subject, text);
+      }
+
+      return res.json({
+        message: "Request rejected and deleted successfully",
+        requestId: req.params.id,
+      });
+    }
+
+    // ✅ Else (approved or pending) → update normally
     const updated = await RequestModel.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
     );
 
-    if (!updated) {
-      return res.status(404).json({ message: "Request not found" });
-    }
-
-    // ✅ Find the alumni who created this request
+    // Notify alumni via email
     const alumni = await Alumni.findById(updated.alumniId);
-
     if (alumni && alumni.email) {
       const subject = "Your Request Status has been Updated";
       const text = `Hello ${alumni.name},
@@ -144,7 +170,6 @@ Your request titled "${updated.title}" has been reviewed by the Placement Cell.
 Thank you,
 Placement Cell Team`;
 
-      // Fire email
       await sendEmail(alumni.email, subject, text);
     }
 
@@ -180,6 +205,5 @@ module.exports = {
   createRequest,
   getAllRequests,
   updateRequestStatus,
-  getApprovedRequestById,
-  getApprovedRequests
+  getApprovedRequestById
 };

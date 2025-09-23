@@ -11,11 +11,17 @@ function PlacementFormsPage() {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          "http://localhost:5000/api/placement-cell/approved-request",
+          "http://localhost:5000/api/placement-cell/get-request",
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setApprovedPlacements(res.data);
-        console.log(approvedPlacements);
+
+        // filter only approved + not forwarded
+        const filtered = res.data.filter(
+          (req) => req.status === "approved" && req.forwarded === false
+        );
+
+        setApprovedPlacements(filtered);
+        console.log("Filtered placements:", filtered);
       } catch (err) {
         console.error("Error fetching approved placements:", err);
       }
@@ -36,7 +42,7 @@ function PlacementFormsPage() {
       <h1 className="text-3xl font-bold mb-6">Approved Placement Forms</h1>
 
       {approvedPlacements.length === 0 ? (
-        <p>No approved placements yet.</p>
+        <p>No approved & unforwarded placements yet.</p>
       ) : (
         <table className="w-full border-collapse border border-gray-300">
           <thead className="bg-gray-100">
@@ -53,7 +59,7 @@ function PlacementFormsPage() {
             {approvedPlacements.map((placement) => (
               <tr key={placement._id} className="hover:bg-gray-50">
                 <td className="border px-4 py-2">{placement.title}</td>
-                <td className="border px-4 py-2">{placement.description}</td>
+                <td className="border px-4 py-2">{placement.companyName}</td>
                 <td className="border px-4 py-2">{placement.department}</td>
                 <td className="border px-4 py-2">
                   {placement.salary || placement.duration}
@@ -61,9 +67,7 @@ function PlacementFormsPage() {
                 <td className="border px-4 py-2">{placement.placementProcess}</td>
                 <td className="border px-4 py-2">
                   <button
-                    onClick={() =>
-                      navigate(`/placement-form/${placement._id}`)
-                    }
+                    onClick={() => navigate(`/placement-form/${placement._id}`)}
                     className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600"
                   >
                     View Form

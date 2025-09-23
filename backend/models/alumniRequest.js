@@ -15,7 +15,7 @@ const requestSchema = new mongoose.Schema({
   department: { type: String, required: true },
 
   // ✅ New field
-  companyName: { type: String },       // for job/internship/program
+  companyName: { type: String,required:true },       // for job/internship/program
 
   // Extra fields depending on type
   duration: { type: String },          // internship/program
@@ -23,7 +23,6 @@ const requestSchema = new mongoose.Schema({
   salary: { type: Number },            // job/internship
   position: { type: String },          // job/internship
   placementProcess: { type: String },  // job/internship
-
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
@@ -31,7 +30,6 @@ const requestSchema = new mongoose.Schema({
   },
     forwarded: { type: Boolean, default: false },
     
-
 }, { timestamps: true }); // adds createdAt & updatedAt automatically
 
 module.exports = mongoose.model('Request', requestSchema);

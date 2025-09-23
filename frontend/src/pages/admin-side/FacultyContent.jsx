@@ -134,8 +134,8 @@ const FacultyContent = () => {
         <h4 className="text-md font-semibold mb-3">Add New Faculty</h4>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <input type="text" name="name" value={newFaculty.name} onChange={handleChange} placeholder="Full Name" className="p-2 border rounded" />
-          <input type="email" name="email" value={newFaculty.email} onChange={handleChange} placeholder="Email" className="p-2 border rounded" />
-          <input type="password" name="password" value={newFaculty.password} onChange={handleChange} placeholder="Password" className="p-2 border rounded" />
+          <input type="email" name="email" value={newFaculty.email} onChange={handleChange} placeholder="Email" className="p-2 border rounded" autoComplete="new-password" />
+          <input type="password" name="password" value={newFaculty.password} onChange={handleChange} placeholder="Password" className="p-2 border rounded" autoComplete="new-password"  />
           <select name="department" value={newFaculty.department} onChange={handleChange} className="p-2 border rounded">
             <option value="">Select Department</option>
             <option value="Mechanical Engineering">Mechanical Engineering</option>

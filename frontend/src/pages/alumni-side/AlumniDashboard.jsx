@@ -12,6 +12,7 @@ function AlumniDashboard() {
   const [showRequests, setShowRequests] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const user = JSON.parse(localStorage.getItem("user")) || {};
+  const userid = localStorage.getItem("userId");
 
   const [requestData, setRequestData] = useState({
     type1: "demo",
@@ -50,7 +51,7 @@ function AlumniDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user.id) return toast.error("User ID not found. Please login again.");
+    if (!userid) return toast.error("User ID not found. Please login again.");
 
     setLoading(true);
     setClicked(true);
@@ -62,7 +63,7 @@ function AlumniDashboard() {
         salary: Number(requestData.salary) || 0,
       };
       await axios.post(
-        "http://localhost:5000/api/requests/new-request",
+        "http://localhost:5000/api/alumni/new-request",
         payload,
         {
           headers: { "Content-Type": "application/json" },
