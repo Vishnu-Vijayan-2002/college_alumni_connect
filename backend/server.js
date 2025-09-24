@@ -35,7 +35,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/placement-cell', require('./routes/placementCell'));
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/alumni', alumniRoutes); // ✅ only once
-app.use('/api/requests', requestRoutes);
+// app.use('/api/requests', requestRoutes);
 
 // 404 - route not found
 app.use((req, res) => {

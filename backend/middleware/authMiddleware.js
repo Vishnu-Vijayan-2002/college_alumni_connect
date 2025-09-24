@@ -2,9 +2,8 @@ const jwt = require("jsonwebtoken");
 const Faculty = require("../models/Faculty");
 const Admin = require("../models/Admin");
 const Alumni = require("../models/Alumni");
-const Student = require("../models/Student")
+const Student = require("../models/Student");
 const PlacementCell = require("../models/PlacementCell");
-
 
 const authMiddleware = async (req, res, next) => {
   let token = req.cookies?.token;
@@ -23,32 +22,28 @@ const authMiddleware = async (req, res, next) => {
 
     let user = null;
 
-    // Check different user models based on role or userType
-    if (decoded.role === 'admin' || decoded.userType === 'admin') {
+    // Decide collection based on role / userType
+    if (decoded.role === "admin" || decoded.userType === "admin") {
       user = await Admin.findById(decoded.id).select("name email role");
-      if (user) user.role = 'admin'; // Ensure role is set
-    } 
-    else if (decoded.role === 'faculty' || decoded.userType === 'faculty') {
+      if (user) user.role = "admin";
+    } else if (decoded.role === "faculty" || decoded.userType === "faculty") {
       user = await Faculty.findById(decoded.id).select("name email role");
-      if (user) user.role = 'faculty'; // Ensure role is set
-    }
-    else if (decoded.role === 'alumni' || decoded.userType === 'alumni') {
+      if (user) user.role = "faculty";
+    } else if (decoded.role === "alumni" || decoded.userType === "alumni") {
       user = await Alumni.findById(decoded.id).select("name email role");
-      if (user) user.role = 'alumni'; // Ensure role is set
-    }
-    else if (decoded.role === 'placement-cell' || decoded.userType === 'placement-cell') {
-  user = await PlacementCell.findById(decoded.id).select("name email role");
-  if (user) user.role = 'placement-cell';
-  }
-  else if (decoded.role === 'student' || decoded.userType === 'student') {
-  user = await Student.findById(decoded.id).select("name email role");
-  if (user) user.role = 'student';
-}
-    else {
-      // If no specific role, try all models
-      user = await Admin.findById(decoded.id).select("name email role") ||
-             await Faculty.findById(decoded.id).select("name email role") ||
-             await Alumni.findById(decoded.id).select("name email role");
+      if (user) user.role = "alumni";
+    } else if (decoded.role === "placement-cell" || decoded.userType === "placement-cell") {
+      user = await PlacementCell.findById(decoded.id).select("name email role");
+      if (user) user.role = "placement-cell";
+    } else if (decoded.role === "student" || decoded.userType === "student") {
+      user = await Student.findById(decoded.id).select("name email role");
+      if (user) user.role = "student";
+    } else {
+      // fallback: try searching all models
+      user =
+        (await Admin.findById(decoded.id).select("name email role")) ||
+        (await Faculty.findById(decoded.id).select("name email role")) ||
+        (await Alumni.findById(decoded.id).select("name email role"));
     }
 
     if (!user) {
@@ -56,8 +51,15 @@ const authMiddleware = async (req, res, next) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    console.log("✅ User authenticated:", { name: user.name, role: user.role });
-    req.user = user; // attach full user to req
+    // ✅ Normalize and attach a clean object
+    req.user = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    console.log("✅ User authenticated:", req.user);
     next();
   } catch (err) {
     console.error("❌ JWT verification failed:", err.message);
@@ -76,10 +78,10 @@ const authorize = (roles = []) => {
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: `Access denied. Your role '${req.user.role}' is not allowed.`,
         allowedRoles: roles,
-        userRole: req.user.role
+        userRole: req.user.role,
       });
     }
 
@@ -88,16 +90,16 @@ const authorize = (roles = []) => {
   };
 };
 
-// Specific middleware for admin and faculty only (for verification tasks)
+// Shortcut middleware for admin + faculty
 const requireAdminOrFaculty = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
-  if (!['admin', 'faculty'].includes(req.user.role)) {
-    return res.status(403).json({ 
-      error: `Access denied. Only admin and faculty can perform this action.`,
-      userRole: req.user.role
+  if (!["admin", "faculty"].includes(req.user.role)) {
+    return res.status(403).json({
+      error: "Access denied. Only admin and faculty can perform this action.",
+      userRole: req.user.role,
     });
   }
 
@@ -108,5 +110,5 @@ module.exports = {
   authMiddleware,
   protect: authMiddleware,
   authorize,
-  requireAdminOrFaculty
+  requireAdminOrFaculty,
 };

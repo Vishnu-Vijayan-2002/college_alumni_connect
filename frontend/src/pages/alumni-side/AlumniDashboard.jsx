@@ -12,7 +12,7 @@ function AlumniDashboard() {
   const [showRequests, setShowRequests] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const user = JSON.parse(localStorage.getItem("user")) || {};
-
+  const userId=localStorage.getItem("userId");
   const [requestData, setRequestData] = useState({
     type1: "demo",
     type: "job",
@@ -48,48 +48,49 @@ function AlumniDashboard() {
     setRequestData({ ...requestData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user.id) return toast.error("User ID not found. Please login again.");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!userId && !user._id) return toast.error("User ID not found. Please login again.");
 
-    setLoading(true);
-    setClicked(true);
+  setLoading(true);
+  setClicked(true);
 
-    try {
-      const payload = {
-        ...requestData,
-        alumniId: user.id,
-        salary: Number(requestData.salary) || 0,
-      };
-      await axios.post(
-        "http://localhost:5000/api/requests/new-request",
-        payload,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+  try {
+    const payload = {
+      ...requestData,
+      alumniId: user._id || userId,
+      salary: Number(requestData.salary) || 0,
+    };
 
-      toast.success("Placement request submitted successfully!");
-      setShowForm(false);
-      setRequestData({
-        type1: "demo",
-        type: "job",
-        title: "",
-        companyName: "",
-        description: "",
-        department: "",
-        duration: "",
-        salary: "",
-        position: "",
-        placementProcess: "",
-      });
-    } catch (err) {
-      toast.error("Failed to submit request.");
-    } finally {
-      setLoading(false);
-      setClicked(false);
-    }
-  };
+    await axios.post(
+      "http://localhost:5000/api/placement-cell/new-request",
+      payload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    toast.success("Placement request submitted successfully!");
+    setShowForm(false);
+    setRequestData({
+      type1: "demo",
+      type: "job",
+      title: "",
+      companyName: "",
+      description: "",
+      department: "",
+      duration: "",
+      salary: "",
+      position: "",
+      placementProcess: "",
+    });
+  } catch (err) {
+    console.error("Submit error:", err);
+    toast.error("Failed to submit request.");
+  } finally {
+    setLoading(false);
+    setClicked(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

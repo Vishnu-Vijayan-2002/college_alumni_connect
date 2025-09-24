@@ -32,6 +32,8 @@ const DashboardContent = () => {
         setFaculty(facultyRes.data?.faculties || []);
         setAlumni(alumniRes.data || []);
         setLoading(false);
+        console.log(alumni);
+        
       } catch (error) {
         console.error(error);
         setFaculty([]);

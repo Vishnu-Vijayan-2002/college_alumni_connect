@@ -13,7 +13,7 @@ function AlumniRequests() {
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/requests/get-request");
+      const res = await axios.get("http://localhost:5000/api/placement-cell/get-request");
       // ✅ only this alumni’s requests
       const alumniRequests = (res.data || []).filter(
         (req) => req.alumniId === userID
