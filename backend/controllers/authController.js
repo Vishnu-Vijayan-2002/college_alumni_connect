@@ -171,16 +171,25 @@ exports.loginUser = async (req, res) => {
 
     const token = generateToken(user);
 
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+  res.status(200).json({
+  message: "Login successful",
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    rollNo: user.rollNo,
+    classRollNo: user.classRollNo,
+    admissionNo: user.admissionNo,
+    department: user.department,
+    branch: user.branch,
+    passoutYear: user.passoutYear,
+    verificationStatus:user.verificationStatus,
+    region:user.region
+  },
+});
+
 
   } catch (err) {
     console.error(err);

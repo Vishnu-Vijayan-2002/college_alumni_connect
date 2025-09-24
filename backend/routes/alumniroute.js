@@ -1,19 +1,20 @@
 const express = require("express");
 const router = express.Router();
-
-const { getAllAlumni ,updateVerificationStatus} = require("../controllers/alumniController");
+const { getAllAlumni, getAlumniById, updateVerificationStatus, updateAlumniProfile } = require("../controllers/alumniController");
 const { protect, authorize } = require("../middleware/authMiddleware");
+const {createRequest} = require("../controllers/requestController");
 
-// Public: get all alumni
+// Public
 router.get("/get-all-alumni", getAllAlumni);
 
-// Protected: user profile
-router.get("/profile", protect, (req, res) => {
-  res.json({ message: "Your profile", user: req.user });
-});
+// Protected
+router.get("/profile/:id", protect, getAlumniById);
 
 // Admin/Faculty: verify alumni
-// routes/alumniRoutes.js
 router.put("/:email/status", protect, authorize(["admin", "faculty"]), updateVerificationStatus);
+
+// Update profile by ID
+router.put("/profile/:id", protect, updateAlumniProfile);
+router.post("/new-request",createRequest);
 
 module.exports = router;

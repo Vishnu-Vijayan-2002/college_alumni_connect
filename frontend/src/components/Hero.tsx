@@ -3,8 +3,14 @@ import { ArrowRight, Users, Target, Award } from 'lucide-react';
 import mainImage from '../assets/images/home_page2.png';
 
 const Hero: React.FC = () => {
+
+  const handleScroll = (id: string) => {
+    const element = document.getElementById(id);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <section 
+    <section
       id="home"
       className="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20 overflow-hidden"
       style={{
@@ -13,6 +19,7 @@ const Hero: React.FC = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed', // parallax effect
       }}
     >
       {/* Overlay for readability */}
@@ -28,28 +35,35 @@ const Hero: React.FC = () => {
         />
       </div>
 
-      <div style={{marginTop:'200px'}} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative mt-24">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
           {/* Left Text Section */}
           <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
             <h1 className="font-heading text-4xl font-bold text-white tracking-tight sm:text-5xl md:text-6xl">
-            <span className="bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 bg-clip-text text-transparent">
-  Collaborate.
-</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Collaborate.
+              </span>
               Succeed.
             </h1>
-            <p style={{color:"white"}} className="mt-6 text-xl font-body text-white/90 leading-relaxed">
+            <p className="mt-6 text-xl font-body text-white/90 leading-relaxed">
               Bridge the gap between alumni and students with our comprehensive portal. 
               Access mentorship, career opportunities, and build lifelong professional networks.
             </p>
 
             {/* Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-<button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-md font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group">
-  Get Started
-</button>
+              <button
+                onClick={() => handleScroll('about')} // scrolls to #about
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-md font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group"
+              >
+                Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </button>
 
-              <button className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 flex items-center justify-center">
+              <button
+                onClick={() => handleScroll('demo')} // scrolls to #demo
+                className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 flex items-center justify-center"
+              >
                 Watch Demo
               </button>
             </div>
@@ -99,7 +113,7 @@ const Hero: React.FC = () => {
             </div>
           </div>
         </div>
-      </div> 
+      </div>
     </section>
   );
 };

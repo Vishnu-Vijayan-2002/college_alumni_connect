@@ -1,5 +1,6 @@
 import React from 'react';
 import { Quote, Star, Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Testimonial {
   id: number;
@@ -160,12 +161,17 @@ const Testimonials: React.FC = () => {
             Become part of our thriving community and start your journey towards professional success.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-              Join as Student
-            </button>
-            <button className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-all duration-200">
-              Join as Alumni
-            </button>
+           <Link to={'/login'}>
+              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                Join as Student
+              </button>
+           </Link>
+
+           <Link to={'/login'}>
+              <button className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-all duration-200">
+                Join as Alumni
+              </button>
+           </Link>
           </div>
         </div>
       </div>
