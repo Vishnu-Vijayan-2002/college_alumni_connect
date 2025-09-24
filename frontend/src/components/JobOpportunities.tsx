@@ -26,7 +26,7 @@ const JobOpportunities: React.FC = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/requests/get-request");
+        const res = await axios.get("http://localhost:5000/api/placement-cell/get-request");
         // ✅ show maximum 3 jobs, but if <3 just show that many
         setJobs(res.data.slice(0, 3));
       } catch (err) {

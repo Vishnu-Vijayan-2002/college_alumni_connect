@@ -5,7 +5,7 @@ const JobListings = () => {
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/requests/get-request')
+    fetch('http://localhost:5000/api/placement-cell/get-request')
       .then((res) => res.json())
       .then((data) => {
         const approvedJobs = data.filter(job => job.status === 'approved');
