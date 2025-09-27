@@ -32,6 +32,7 @@ router.post("/placement-request", protect, authorize(["placement-cell"]), create
 // POST /api/placement-cell/send-to-students/:id
 router.post("/send-to-students/:id",protect,authorize(["placement-cell"]),sendToStudents);
 
+
 //POST /api/placement-cell/apply  → store students response   (student apply)
 router.post("/apply", protect, authorize(["student"]), submitPlacementResponse);
 

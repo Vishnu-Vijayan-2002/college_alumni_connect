@@ -32,6 +32,8 @@ import AlumniDashboard from "./pages/alumni-side/AlumniDashboard";
 import ApplicantsPage from "./pages/placementcell/ApplicantsPage ";
 import PlacementFormsPage from "./pages/placementcell/PlacementFormsPage";
 import PlacementFormDetailPage from "./pages/placementcell/PlacementFormDetailPage";
+import PlacementPage from "./pages/student-side/PlacementPage";
+import PlacementApply from "./pages/student-side/PlacementApply";
 
 // Pages
 // import RegisterForm from "./pages/RegisterForm";
@@ -136,6 +138,23 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/student-dashboard/placements"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <PlacementPage/>
+             
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/student-dashboard/placements/apply/:id"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <PlacementApply/>             
             </ProtectedRoute>
           }
         />

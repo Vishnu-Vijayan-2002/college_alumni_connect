@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User, BookOpen, Calendar, Award } from "lucide-react";
+import { Briefcase , BookOpen, Calendar, Award } from "lucide-react";
 import UpcomingEvents from "../components/UpcomingEvents";
 import NewsUpdates from "../components/NewsUpdates";
 import JobOpportunities from "../components/JobOpportunities";
@@ -41,7 +41,7 @@ function StudentDashboard() {
     },[])
 
     // logout session
-    const hacndleLogout=()=>{
+    const handleLogout=()=>{
       localStorage.clear();
       Navigate('/');
       
@@ -52,7 +52,7 @@ function StudentDashboard() {
       {/* Header */}
       <header className="flex items-center justify-between mb-10">
         <h1 className="text-3xl font-bold text-blue-700">Hi {user.name}</h1>
-        <button onClick={hacndleLogout} className="px-4 py-2 bg-red-500 text-white rounded-xl shadow hover:bg-red-600 transition">
+        <button onClick={handleLogout} className="px-4 py-2 bg-red-500 text-white rounded-xl shadow hover:bg-red-600 transition">
           Logout
         </button>
       </header>
@@ -120,13 +120,12 @@ function StudentDashboard() {
     <p className="text-gray-500">Check upcoming workshops, webinars & alumni meets.</p>
   </div>
 
-  {/* Achievements */}
-  <div className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition">
+  {/* placements */}
+  <div className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition cursor-pointer"  onClick={() => Navigate("/student-dashboard/placements")}>
     <div className="flex items-center gap-4 mb-4">
-      <Award className="text-green-500 w-8 h-8" />
-      <h3 className="text-lg font-semibold text-gray-700">Achievements</h3>
+      <Briefcase className="text-green-500 w-8 h-8" />
+      <h3 className="text-lg font-semibold text-gray-700">Placements</h3>
     </div>
-    <p className="text-gray-500">Track your certifications, awards, and badges.</p>
   </div>
 </div>
 
