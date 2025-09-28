@@ -25,6 +25,7 @@ function AlumniRequests() {
     }
   };
 
+
   return (
     <div style={{width:"100%"}} className="min-h-screen bg-white-100 p-6">
       <header className="mb-6 flex justify-between items-center">
@@ -51,14 +52,14 @@ function AlumniRequests() {
                   <td className="border p-2">{req.department}</td>
                   <td
                     className={`border p-2 font-medium ${
-                      req.status === "Approved"
+                      req.status === "approved"
                         ? "text-green-600"
-                        : req.status === "Rejected"
+                        : req.status === "rejected"
                         ? "text-red-600"
                         : "text-yellow-600"
                     }`}
                   >
-                    {req.status || "Pending"}
+                    {req.status || "pending"}
                   </td>
                 </tr>
               ))}

@@ -25,6 +25,7 @@ function AlumniProfile() {
             }
           );
           setFormData(res.data.data);
+          console.log(res.data.data);
           localStorage.setItem(
             "user",
             JSON.stringify({ ...res.data.data, token }) // preserve token

@@ -15,6 +15,8 @@ import FeaturedAlumni from "./components/FeaturedAlumni";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import UpcomingEvents from "./components/UpcomingEvents";
+import AdminDashboard from "./pages/admin-side/AdminDashboard";
+import PlacementRequestsPage from "./pages/placementcell/PlacementRequestsPage";
 
 // Auth pages
 import LoginForm from "./pages/LoginForm";
@@ -23,11 +25,15 @@ import RegisterForm from "./pages/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobListings from "./pages/JobListings";
-import AdminDashboard from "./pages/admin-side/AdminDashboard";
 
 // Dashboards & Protected routes
 import PlacementcellDashboard from "./pages/placementcell/PlacementcellDashboard";
 import AlumniDashboard from "./pages/alumni-side/AlumniDashboard";
+import ApplicantsPage from "./pages/placementcell/ApplicantsPage ";
+import PlacementFormsPage from "./pages/placementcell/PlacementFormsPage";
+import PlacementFormDetailPage from "./pages/placementcell/PlacementFormDetailPage";
+import PlacementPage from "./pages/student-side/PlacementPage";
+import PlacementApply from "./pages/student-side/PlacementApply";
 
 // Pages
 // import RegisterForm from "./pages/RegisterForm";
@@ -43,6 +49,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
+      
       {!hideHeader && <Header />}
 
       <Routes>
@@ -94,12 +101,60 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/placement-requests"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+            <PlacementRequestsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+          path="/placement-dashboard/applicants/:requestId" 
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+            <ApplicantsPage/>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+          path="/placement-forms"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+              <PlacementFormsPage/>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="placement-form/:placementId"
+          element={
+            <ProtectedRoute allowedRoles={["placement-cell"]}>
+              <PlacementFormDetailPage/>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/student-dashboard"
           element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/student-dashboard/placements"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <PlacementPage/>
+             
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/student-dashboard/placements/apply/:id"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <PlacementApply/>             
             </ProtectedRoute>
           }
         />

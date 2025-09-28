@@ -14,33 +14,32 @@ const DashboardContent = () => {
   const [faculty, setFaculty] = useState([]);
   const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
+      const [facultyRes, alumniRes] = await Promise.all([
+        axios.get("http://localhost:5000/api/faculty/get-all-faculty", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:5000/api/alumni/get-all-alumni", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-        const [facultyRes, alumniRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/faculty/get-all-faculty", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("http://localhost:5000/api/alumni/get-all-alumni", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+      setFaculty(facultyRes.data?.faculties || []);
+      setAlumni(alumniRes.data?.data || []); 
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setFaculty([]);
+      setAlumni([]);
+      setLoading(false);
+    }
+  };
 
-        setFaculty(facultyRes.data?.faculties || []);
-        setAlumni(alumniRes.data || []);
-        setLoading(false);
-        console.log(alumni);
-        
-      } catch (error) {
-        console.error(error);
-        setFaculty([]);
-        setAlumni([]);
-        setLoading(false);
-      }
-    };
+      
 
     fetchData();
   }, []);

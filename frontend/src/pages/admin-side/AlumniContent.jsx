@@ -10,18 +10,21 @@ const AlumniContent = () => {
     fetchAlumniList();
   }, []);
 
-  const fetchAlumniList = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("http://localhost:5000/api/alumni/get-all-alumni");
-      const data = await res.json();
-      setAlumni(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error fetching alumni:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchAlumniList = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch("http://localhost:5000/api/alumni/get-all-alumni");
+    const data = await res.json();
+
+    // ✅ extract actual array from inside "data"
+    setAlumni(Array.isArray(data.data) ? data.data : []);
+  } catch (error) {
+    console.error("Error fetching alumni:", error);
+    setAlumni([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const formatValue = (value) => {
     if (value === null || value === undefined) return "-";

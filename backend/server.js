@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 // Import routes
 const facultyRoutes = require('./routes/facultyRoutes');
-const requestRoutes = require('./routes/placementCell');
+// const requestRoutes = require('./routes/placementCell');
 const alumniRoutes = require('./routes/alumniroute'); // ✅ fixed import
 
 // Load environment variables from .env

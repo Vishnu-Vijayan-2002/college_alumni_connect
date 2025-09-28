@@ -12,7 +12,9 @@ function AlumniDashboard() {
   const [showRequests, setShowRequests] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
   const userId=localStorage.getItem("userId");
+
   const [requestData, setRequestData] = useState({
     type1: "demo",
     type: "job",
@@ -48,12 +50,14 @@ function AlumniDashboard() {
     setRequestData({ ...requestData, [name]: value });
   };
 
+
  const handleSubmit = async (e) => {
   e.preventDefault();
   if (!userId && !user._id) return toast.error("User ID not found. Please login again.");
 
   setLoading(true);
   setClicked(true);
+
 
   try {
     const payload = {
@@ -90,7 +94,6 @@ function AlumniDashboard() {
     setClicked(false);
   }
 };
-
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
