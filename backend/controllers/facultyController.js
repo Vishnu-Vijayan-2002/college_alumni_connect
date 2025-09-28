@@ -129,27 +129,29 @@ exports.loginFaculty = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    // Check password using your model's method
     const isMatch = await faculty.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    // Generate JWT token
     const token = jwt.sign(
       { id: faculty._id, role: "faculty" },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    res.status(200).json({
-      id: faculty._id,
-      name: faculty.name,
-      email: faculty.email,
-      department: faculty.department,
-      token,
-    });
+    // Send response with desired fields
+  res.status(200).json({
+  name: faculty.name,          // user's name
+  email: faculty.email,        // user's email
+  department: faculty.department, // user's department
+  role: "faculty",             // role
+  token,                       // JWT token
+});
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-

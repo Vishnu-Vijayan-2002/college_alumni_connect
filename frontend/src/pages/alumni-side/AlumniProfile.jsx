@@ -13,6 +13,7 @@ function AlumniProfile() {
 
   // Fetch profile by ID
   useEffect(() => {
+      const token = localStorage.getItem("token"); 
     const fetchProfile = async () => {
       if (userId && token) {
         try {

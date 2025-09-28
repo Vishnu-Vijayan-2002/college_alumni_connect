@@ -39,13 +39,14 @@ import PlacementApply from "./pages/student-side/PlacementApply";
 // import RegisterForm from "./pages/RegisterForm";
 // import LoginForm from "./pages/LoginForm";
 // import AdminDashboard from "./pages/AdminDashboard";
+import FacultyDashboard from './pages/faculty/FacultyDashboard';
 
 function App() {
   const location = useLocation();
   const hideHeader =
     location.pathname === "/admin-dashboard" ||
     location.pathname === "/placement-dashboard" ||
-    location.pathname === "/student-dashboard";
+    location.pathname === "/student-dashboard" || location.pathname === "/faculty-dashboard";
 
   return (
     <div className="min-h-screen bg-white">
@@ -77,11 +78,15 @@ function App() {
         {/* Register & Login pages */}
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/login" element={<LoginForm />} />
+         <Route path="/event" element={<UpcomingEvents />} />
+          <Route path="/resources" element={<ResourceCenter />} />
+           <Route path="/forums" element={<NetworkingForum />} />
+              <Route path="/alumni" element={<SuccessStories />} />
 
 
         {/* Protected Dashboard pages */}
 
-        
+          <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
 
         {/* Protected Dashboards */}
         <Route

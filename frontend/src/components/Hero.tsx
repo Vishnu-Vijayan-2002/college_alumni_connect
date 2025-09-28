@@ -70,7 +70,7 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Right Stats Section */}
-          <div className="mt-12 lg:mt-0 lg:col-span-6">
+          <div  className="mt-12 lg:mt-0 lg:col-span-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {/* Alumni */}
               <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">

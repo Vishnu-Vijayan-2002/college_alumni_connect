@@ -1,37 +1,53 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
 
 function AlumniRequests() {
   const [requests, setRequests] = useState([]);
   const user = JSON.parse(localStorage.getItem("user")) || {};
-  const userID=localStorage.getItem("userId")
+  const userID = localStorage.getItem("userId"); // saved during login
+
   useEffect(() => {
-    fetchRequests();
+    if (userID) {
+      fetchRequests();
+    }
   }, [userID]);
 
   const fetchRequests = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/placement-cell/get-request");
-      // ✅ only this alumni’s requests
-      const alumniRequests = (res.data || []).filter(
-        (req) => req.alumniId === userID
-      );
+      const allRequests = res.data || [];
+
+      // ✅ handle both cases: alumniId could be string or object
+      const alumniRequests = allRequests.filter((req) => {
+        if (!req.alumniId) return false;
+
+        // case 1: alumniId is stored as string
+        if (typeof req.alumniId === "string") {
+          return String(req.alumniId) === String(userID);
+        }
+
+        // case 2: alumniId is populated object (with _id)
+        if (typeof req.alumniId === "object" && req.alumniId._id) {
+          return String(req.alumniId._id) === String(userID);
+        }
+
+        return false;
+      });
+
       setRequests(alumniRequests);
     } catch (err) {
-      console.error("Error fetching requests:", err.message);
+      console.error("❌ Error fetching requests:", err.message);
       toast.error("Failed to load your requests.");
     }
   };
 
-
   return (
-    <div style={{width:"100%"}} className="min-h-screen bg-white-100 p-6">
-      <header className="mb-6 flex justify-between items-center">
-      </header>
-
-      <div style={{width:"100%"}}  className= "p-6 rounded-xl shadow-lg max-w-5xl mx-auto">
+    <div style={{ width: "100%" }} className="min-h-screen bg-gray-50 p-6">
+      <div
+        style={{ width: "100%" }}
+        className="p-6 rounded-xl shadow-lg max-w-5xl mx-auto bg-white"
+      >
         {requests.length > 0 ? (
           <table className="w-full border-collapse border border-gray-200">
             <thead>
@@ -66,7 +82,9 @@ function AlumniRequests() {
             </tbody>
           </table>
         ) : (
-          <p className="text-gray-600">No placement requests found.</p>
+          <p className="text-gray-600 text-center">
+            No placement requests found for your account.
+          </p>
         )}
       </div>
     </div>

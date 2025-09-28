@@ -3,98 +3,102 @@ import axios from "axios";
 import MyImage from "../assets/images/tkm4.jpg";
 import BackgroundImage from "../assets/images/login.jpg";
 import { Link, useNavigate } from "react-router-dom";
-
-// ✅ Import Toastify
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginForm() {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     role: "student", // default role
   });
-
   const [loading, setLoading] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // ✅ Choose API based on role
+      // Select API based on role
       let apiUrl = "";
-      if (formData.role === "admin") {
-        apiUrl = "http://localhost:5000/api/admin/login";
-      } else if (formData.role === "faculty") {
-        apiUrl = "http://localhost:5000/api/auth/login";
-      } else if (formData.role === "alumni") {
-        apiUrl = "http://localhost:5000/api/auth/login";
-      } else if (formData.role === "placement-cell") {
-        apiUrl = "http://localhost:5000/api/placement-cell/login";
-      } else {
-        apiUrl = "http://localhost:5000/api/auth/login"; // student
+      switch (formData.role) {
+        case "admin":
+          apiUrl = "http://localhost:5000/api/admin/login";
+          break;
+        case "faculty":
+          apiUrl = "http://localhost:5000/api/faculty/login";
+          break;
+        case "alumni":
+          apiUrl = "http://localhost:5000/api/auth/login";
+          break;
+        case "placement-cell":
+          apiUrl = "http://localhost:5000/api/placement-cell/login";
+          break;
+        default:
+          apiUrl = "http://localhost:5000/api/auth/login"; // student
       }
 
-      // ✅ axios POST request
+      // Send login request
       const res = await axios.post(apiUrl, formData, {
         headers: { "Content-Type": "application/json" },
       });
-      const data = res.data;
 
-      // ✅ Store token and user info in localStorage
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
+      const data = res.data; // full response from API
+      console.log("Login response:", data);
 
-      if (data.admin || data.user) {
-        const userInfo = data.admin || data.user;
-        localStorage.setItem("userId", userInfo.id);
-        localStorage.setItem("userName", userInfo.name);
-        localStorage.setItem("userRole", userInfo.role);
-        localStorage.setItem("userEmail", userInfo.email);
+      // Extract user info (supports all roles)
+      const userInfo = data.user || data.admin || data.faculty || data.placement || data;
+
+      // Store token
+      if (data.token) localStorage.setItem("token", data.token);
+
+      // Store user info
+      if (userInfo) {
         localStorage.setItem("user", JSON.stringify(userInfo));
+        localStorage.setItem("userId", userInfo.id || userInfo._id);
+        localStorage.setItem("userName", userInfo.name);
+        localStorage.setItem("userRole", userInfo.role || formData.role);
+        localStorage.setItem("userEmail", userInfo.email);
+        localStorage.setItem("userDepartment", userInfo.department || "");
       }
 
-      // ✅ Redirect based on role
-      const role = data.admin?.role || data.user?.role;
-      const status = data.user?.verificationStatus;
-      console.log(data);
-      
+      console.log("Stored user info:", userInfo);
 
-      if (role === "admin") {
-        navigate("/admin-dashboard");
-      } else if (role === "faculty") {
-        navigate("/faculty-dashboard");
-      } else if (role === "placement-cell") {
-        navigate("/placement-dashboard");
-      } else if (role === "alumni") {
-        if (status === "verified") {
-          navigate("/alumni-dashboard");
-        } else {
-          // ✅ Show toast message before redirect
-          toast.warning("Your registration is pending approval", {
-            position: "top-center",
-            autoClose: 2000,
-          });
-        }
-      } else {
-        navigate("/student-dashboard");
+      // Redirect based on role
+      const role = userInfo?.role || formData.role;
+      const status = userInfo?.verificationStatus;
+
+      switch (role) {
+        case "admin":
+          navigate("/admin-dashboard");
+          break;
+        case "faculty":
+          navigate("/faculty-dashboard");
+          break;
+        case "placement-cell":
+          navigate("/placement-dashboard");
+          break;
+        case "alumni":
+          if (status === "verified") navigate("/alumni-dashboard");
+          else
+            toast.warning("Your registration is pending approval", {
+              position: "top-center",
+              autoClose: 2000,
+            });
+          break;
+        default:
+          navigate("/student-dashboard");
       }
     } catch (err) {
-      // ✅ Show error toast
-      toast.error(err.response?.data?.error || err.message || "Login failed", {
-        position: "top-center",
-        autoClose: 3000,
-      });
+      toast.error(
+        err.response?.data?.error || err.response?.data?.message || err.message || "Login failed",
+        { position: "top-center", autoClose: 3000 }
+      );
     } finally {
       setLoading(false);
     }
@@ -110,18 +114,12 @@ export default function LoginForm() {
       <div className="relative max-w-4xl w-full rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         {/* Left side image */}
         <div className="md:w-1/2 hidden md:block">
-          <img
-            src={MyImage}
-            alt="Login Illustration"
-            className="h-full w-full object-cover"
-          />
+          <img src={MyImage} alt="Login Illustration" className="h-full w-full object-cover" />
         </div>
 
         {/* Right side form */}
         <div className="md:w-1/2 w-full p-10 flex flex-col justify-center bg-white/30 backdrop-blur-md">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-            Welcome Back
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome Back</h2>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Role Selection */}
@@ -191,15 +189,12 @@ export default function LoginForm() {
           <p className="mt-5 text-center text-gray-600">
             Don’t have an account?{" "}
             <Link to={"/register"}>
-              <span className="text-blue-500 hover:underline font-semibold">
-                Sign Up
-              </span>
+              <span className="text-blue-500 hover:underline font-semibold">Sign Up</span>
             </Link>
           </p>
         </div>
       </div>
 
-      {/* ✅ Toast Container */}
       <ToastContainer />
     </div>
   );

@@ -10,22 +10,31 @@ const AlumniContent = () => {
     fetchAlumniList();
   }, []);
 
- const fetchAlumniList = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch("http://localhost:5000/api/alumni/get-all-alumni");
-    const data = await res.json();
+  // Fetch alumni list
+  const fetchAlumniList = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token"); // if your API requires token
+      const res = await fetch("http://localhost:5000/api/alumni/get-all-alumni", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      console.log("API response:", data);
 
-    // ✅ extract actual array from inside "data"
-    setAlumni(Array.isArray(data.data) ? data.data : []);
-  } catch (error) {
-    console.error("Error fetching alumni:", error);
-    setAlumni([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      // Adjust based on response structure
+      if (Array.isArray(data)) setAlumni(data);
+      else if (Array.isArray(data.data)) setAlumni(data.data);
+      else if (Array.isArray(data.alumni)) setAlumni(data.alumni);
+      else setAlumni([]);
+    } catch (error) {
+      console.error("Error fetching alumni:", error);
+      setAlumni([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Format value for display
   const formatValue = (value) => {
     if (value === null || value === undefined) return "-";
     if (Array.isArray(value)) return value.join(", ");
@@ -36,29 +45,35 @@ const AlumniContent = () => {
     return value.toString();
   };
 
-  // Update status
+  // Update verification status
   const updateStatus = async (email, newStatus) => {
     if (!window.confirm(`Are you sure you want to mark this alumni as '${newStatus}'?`)) return;
-
     setUpdating(true);
+
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:5000/api/alumni/${email}/status`, {
         method: "PUT",
         headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // pass token here
-      },
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         body: JSON.stringify({ status: newStatus }),
       });
+
       const data = await res.json();
       if (data.success) {
         alert(data.message);
-        // Update local state
-        setSelectedAlum((prev) => ({ ...prev, verificationStatus: newStatus, verifiedBy: data.data.alumni.verifiedBy, verifiedAt: data.data.alumni.verifiedAt }));
+        // Update selectedAlum locally
+        setSelectedAlum((prev) => ({
+          ...prev,
+          verificationStatus: newStatus,
+          verifiedBy: data.data?.alumni?.verifiedBy || prev.verifiedBy,
+          verifiedAt: data.data?.alumni?.verifiedAt || prev.verifiedAt,
+        }));
         fetchAlumniList();
       } else {
-        alert("Failed to update status");
+        alert(data.message || "Failed to update status");
       }
     } catch (error) {
       console.error("Error updating status:", error);
@@ -90,10 +105,10 @@ const AlumniContent = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {alumni.map((alum) => (
-                <tr key={alum._id} className="hover:bg-gray-50">
+                <tr key={alum._id || alum.email} className="hover:bg-gray-50">
                   <td className="px-4 py-2">{alum.name}</td>
                   <td className="px-4 py-2">{alum.email}</td>
-                  <td className="px-4 py-2">{alum.department}</td>
+                  <td className="px-4 py-2">{alum.department || "-"}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -104,7 +119,7 @@ const AlumniContent = () => {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {alum.verificationStatus}
+                      {alum.verificationStatus || "pending"}
                     </span>
                   </td>
                   <td className="px-4 py-2">
@@ -143,7 +158,7 @@ const AlumniContent = () => {
                   />
                 ) : (
                   <div className="h-24 w-24 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-3xl font-bold border">
-                    {selectedAlum.name.charAt(0).toUpperCase()}
+                    {selectedAlum.name?.charAt(0).toUpperCase() || "A"}
                   </div>
                 )}
               </div>
@@ -151,8 +166,9 @@ const AlumniContent = () => {
               <div>
                 <h3 className="text-2xl font-bold">{selectedAlum.name}</h3>
                 <p className="text-gray-600">{selectedAlum.email}</p>
-                <p className="text-gray-600">{selectedAlum.department} Department</p>
+                <p className="text-gray-600">{selectedAlum.department || "-"} Department</p>
                 {selectedAlum.passoutYear && <p className="text-gray-600">Passout Year: {selectedAlum.passoutYear}</p>}
+
                 <span
                   className={`inline-block px-3 py-1 mt-2 rounded-full text-sm font-medium ${
                     ["approved", "verified"].includes(selectedAlum.verificationStatus)
@@ -162,16 +178,19 @@ const AlumniContent = () => {
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {selectedAlum.verificationStatus}
+                  {selectedAlum.verificationStatus || "pending"}
                 </span>
 
-                {/* Verified By Role */}
-                {["approved", "verified"].includes(selectedAlum.verificationStatus) && selectedAlum.verifiedBy?.role && (
-                  <p className="mt-1 text-gray-700">
-                    {selectedAlum.verifiedBy.role.charAt(0).toUpperCase() + selectedAlum.verifiedBy.role.slice(1)} Verified
-                    <br />
-                    Verified at: {new Date(selectedAlum.verifiedAt).toLocaleString()}
-                  </p>
+                {/* Full Verified By Details */}
+                {["approved", "verified"].includes(selectedAlum.verificationStatus) && selectedAlum.verifiedBy && (
+                  <div className="mt-2 text-gray-700">
+                    <p>
+                      <span className="font-semibold">Verified By:</span> {selectedAlum.verifiedBy.name || "-"} ({selectedAlum.verifiedBy.role || "-"})
+                    </p>
+                    <p>
+                      <span className="font-semibold">Verified At:</span> {selectedAlum.verifiedAt ? new Date(selectedAlum.verifiedAt).toLocaleString() : "-"}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -180,7 +199,7 @@ const AlumniContent = () => {
             <div className="my-4">
               <label className="block mb-2 font-semibold">Update Verification Status:</label>
               <select
-                value={selectedAlum.verificationStatus}
+                value={selectedAlum.verificationStatus || "pending"}
                 onChange={(e) => updateStatus(selectedAlum.email, e.target.value)}
                 disabled={updating}
                 className="border px-3 py-2 rounded w-full md:w-1/2"
@@ -201,11 +220,7 @@ const AlumniContent = () => {
                 return (
                   <div key={key} className="bg-gray-50 p-3 rounded border">
                     <span className="font-semibold capitalize">{key}:</span>{" "}
-                    <span className="text-gray-700">
-                      {typeof value === "object" && value !== null
-                        ? JSON.stringify(value, null, 2)
-                        : formatValue(value)}
-                    </span>
+                    <span className="text-gray-700">{formatValue(value)}</span>
                   </div>
                 );
               })}

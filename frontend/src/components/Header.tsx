@@ -43,14 +43,15 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
-  const navItems = [
-    { name: "Home", path: "/", icon: Users },
-    { name: "Alumni", path: "/alumni", icon: GraduationCap },
-    { name: "Students", path: "/students", icon: Briefcase },
-    { name: "Events", path: "/events", icon: Calendar },
-    { name: "Forums", path: "/forums", icon: MessageCircle },
-    { name: "Resources", path: "/resources", icon: BookOpen },
-  ];
+const navItems = [
+  { name: "Home", path: "/", icon: Users },
+  { name: "Alumni", path: "/alumni", icon: GraduationCap },
+  // { name: "Students", path: "students", icon: Briefcase },
+  { name: "Events", path: "/event", icon: Calendar },
+  { name: "Forums", path: "/forums", icon: MessageCircle },
+  { name: "Resources", path: "/resources", icon: BookOpen },
+];
+
 
   return (
     <header className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-50">

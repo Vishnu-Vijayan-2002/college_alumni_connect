@@ -2,27 +2,26 @@ const PlacementRequest = require("../models/PlacementRequest");
 const PlacementResponse = require("../models/PlacementResponse");
 const Student = require("../models/Student");
 
-
+// Submit a placement response (student)
 const submitPlacementResponse = async (req, res) => {
   try {
     const { requestId, answers } = req.body;
 
-    // 1. Fetch placement request
     const request = await PlacementRequest.findById(requestId);
     if (!request) {
       return res.status(404).json({ error: "Placement request not found" });
     }
 
-    // 2. Validate and filter answers
+    // Validate required fields
     let filteredAnswers = {};
     for (const field of request.requiredFields) {
       if (!answers[field]) {
         return res.status(400).json({ error: `Missing required field: ${field}` });
       }
-      filteredAnswers[field] = answers[field]; // only keep required ones
+      filteredAnswers[field] = answers[field];
     }
 
-    // 3. Prevent duplicate
+    // Prevent duplicate application
     const existing = await PlacementResponse.findOne({
       requestId,
       studentId: req.user._id,
@@ -31,45 +30,45 @@ const submitPlacementResponse = async (req, res) => {
       return res.status(400).json({ error: "You already applied for this request" });
     }
 
-    // 4. Save response (store full linkage)
     const response = new PlacementResponse({
-      requestId,              // link to PlacementRequest
-      studentId: req.user._id, // link to Student
+      requestId,
+      studentId: req.user._id,
       answers: filteredAnswers,
-      status: "pending"        // 👈 always pending until placement cell reviews
+      status: "pending",
     });
 
     await response.save();
 
-    // 5. (Optional) also update student model with reference to this request
     await Student.findByIdAndUpdate(req.user._id, {
-      $push: { appliedPlacements: requestId }
+      $push: { appliedPlacements: requestId },
     });
 
-    // 6. (Optional) also update placementRequest with reference to this student
     await PlacementRequest.findByIdAndUpdate(requestId, {
-      $push: { applicants: req.user._id }
+      $push: { applicants: req.user._id },
     });
 
-    res.status(201).json({
-      message: "Response submitted successfully",
-      response
-    });
+    res.status(201).json({ message: "Response submitted successfully", response });
   } catch (error) {
     console.error("❌ Error in submitPlacementResponse:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-
-
-
+// Get dashboard data
 const getDashboardData = async (req, res) => {
   try {
-    // 1. Get all placement requests created by this placement cell
-    const requests = await PlacementRequest.find({ createdBy: req.user._id });
+    let requests;
 
-    // 2. Attach responses dynamically
+    if (req.user.role === "placement-cell") {
+      requests = await PlacementRequest.find({ createdBy: req.user._id });
+    } else if (req.user.role === "faculty") {
+      requests = await PlacementRequest.find();
+    } else if (req.user.role === "student") {
+      requests = await PlacementRequest.find({ deadline: { $gte: new Date() } });
+    } else {
+      return res.status(403).json({ error: "Not allowed for this role" });
+    }
+
     const dashboardData = await Promise.all(
       requests.map(async (request) => {
         const responses = await PlacementResponse.find({ requestId: request._id })
@@ -80,14 +79,21 @@ const getDashboardData = async (req, res) => {
           formTitle: request.formTitle,
           companyName: request.companyName,
           jobRole: request.jobRole,
+          jobType: request.jobType,
+          department: request.department,
+          salary: request.salary,
+          position: request.position,
+          placementProcess: request.placementProcess,
           deadline: request.deadline,
-          requiredFields: request.requiredFields, // 👈 include required fields
+          requiredFields: request.requiredFields,
           totalApplicants: responses.length,
           applicants: responses.map((resp) => ({
-            student: resp.studentId,    // student profile
-            answers: resp.answers,      // only contains required fields submitted
-            appliedAt: resp.createdAt
-          }))
+             _id:resp._id,   
+            student: resp.studentId,
+            answers: resp.answers,
+            appliedAt: resp.createdAt,
+            status: resp.status,
+          })),
         };
       })
     );
@@ -99,21 +105,19 @@ const getDashboardData = async (req, res) => {
   }
 };
 
+// Get applicants for a specific placement request
 const getApplicantsData = async (req, res) => {
   try {
-    const { id } = req.params; // placement request ID
+    const { id } = req.params;
 
-    // 1. Ensure the placement request exists
     const request = await PlacementRequest.findById(id);
     if (!request) {
       return res.status(404).json({ error: "Placement request not found" });
     }
 
-    // 2. Fetch all responses for this request
     const responses = await PlacementResponse.find({ requestId: id })
       .populate("studentId", "name email rollNo department cgpa");
 
-    // 3. Group applicants by department
     const byDepartment = {};
     responses.forEach((resp) => {
       const dept = resp.studentId.department || "Unknown";
@@ -130,7 +134,7 @@ const getApplicantsData = async (req, res) => {
       requestId: id,
       formTitle: request.formTitle,
       totalApplicants: responses.length,
-      byDepartment, // 👈 grouped format
+      byDepartment,
     });
   } catch (error) {
     console.error("❌ Error fetching applicants:", error);
@@ -138,8 +142,37 @@ const getApplicantsData = async (req, res) => {
   }
 };
 
-module.exports={
-    submitPlacementResponse,
-    getDashboardData,
-    getApplicantsData
-}
+// ✅ Faculty can update application status
+
+
+const updateApplicationStatus = async (req, res) => {
+  try {
+    const { responseId, status } = req.body;
+    const allowedStatuses = ["pending", "approved", "rejected"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const response = await PlacementResponse.findById(responseId);
+    if (!response) {
+      return res.status(404).json({ error: "Application response not found" });
+    }
+
+    response.status = status;
+    await response.save();
+
+    res.json({ message: "Application status updated", response });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
+
+module.exports = {
+  submitPlacementResponse,
+  getDashboardData,
+  getApplicantsData,
+  updateApplicationStatus, // 🔹 export new function
+};

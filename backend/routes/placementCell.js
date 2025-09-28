@@ -41,8 +41,10 @@ router.post("/apply", protect, authorize(["student"]), submitPlacementResponse);
 router.get("/placement-request/:id", protect, authorize(["student","placement-cell"]), getPlacementRequestById);
 
 // GET /api/placement-cell/responses/:requestId
-router.get("/dashboard",protect,authorize(["placement-cell"]),getDashboardData);
-
+router.get(
+  "/dashboard",protect, // each role separate
+getDashboardData
+);
 // GET  /api/placement-cell/dashboard/:id for showing applicants of each placement request
 router.get("/dashboard/:id",protect,authorize(["placement-cell"]),getApplicantsData);
 
