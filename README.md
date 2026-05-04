@@ -1,5 +1,5 @@
 
-![Uploading alumini.png…]()
+![Alumni](https://raw.githubusercontent.com/your-username/repo-name/main/alumini.png)
 
 # College Alumni Connect
 
